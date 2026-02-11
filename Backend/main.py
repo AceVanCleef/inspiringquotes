@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import models, schemas, crud
 from database import SessionLocal, engine
+from fastapi.middleware.cors import CORSMiddleware
 
 # This command creates the tables in the SQLite file,
 # if they do not already exist.
@@ -11,6 +12,15 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Inspiring Quotes API",
     description="Backend für deine Zitate-App – Fokus: Genuine Non-Neediness"
+)
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Any source is permitted for development. Todo: needs to change in production env
+    allow_credentials=True,
+    allow_methods=["*"], # Allows GET, POST, etc.
+    allow_headers=["*"], # Allows all Header
 )
 
 # Retrieves a list of authors from the database.
