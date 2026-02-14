@@ -7,3 +7,14 @@ export async function getQuotes() {
   }
   return response.json()
 }
+
+
+export async function incrementLike(quoteId: number) {
+  const response = await fetch(`${BASE_URL}/quotes/${quoteId}/like`, { method: 'POST' });
+  return response.json();
+}
+
+export async function decrementLike(quoteId: number) {
+  const response = await fetch(`${BASE_URL}/quotes/${quoteId}/unlike`, { method: 'POST' });
+  return response.json();
+}

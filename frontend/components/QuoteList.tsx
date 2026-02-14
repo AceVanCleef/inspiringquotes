@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { getQuotes } from '@/lib/api'
+import QuoteCard from './ui/atom/QuoteCard'
 
 export default function QuoteList() {
   const { data, isLoading, isError } = useQuery({
@@ -15,10 +16,13 @@ export default function QuoteList() {
   return (
     <div className="space-y-4">
       {data?.map((quote: any) => (
-        <div key={quote.id} className="p-4 border rounded-lg shadow-sm bg-white">
-          <p className="text-lg italic">"{quote.text}"</p>
-          <p className="text-sm font-bold mt-2">- {quote.author.first_name}</p>
-        </div>
+        <QuoteCard 
+          key={quote.id}
+          id={quote.id}
+          text={quote.text}
+          authorName={`${quote.author.first_name} ${quote.author.last_name}`}
+          likes={quote.likes} 
+        />
       ))}
     </div>
   )

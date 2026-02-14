@@ -34,6 +34,7 @@ class Author(AuthorBase):
 # --- QUOTE DTOs ---
 class QuoteBase(BaseModel):
     text: str
+    likes: int = 0
 
 class QuoteCreate(QuoteBase):
     pass

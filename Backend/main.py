@@ -1,9 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 import models, schemas, crud
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
+import random
+from datetime import date
 
 # This command creates the tables in the SQLite file,
 # if they do not already exist.
@@ -56,6 +59,7 @@ def create_link_for_author(author_id: int, link: schemas.AuthorLinkCreate, db: S
     """Adds a new link (e.g., Instagram) to an existing author."""
     return crud.create_author_link(db=db, link=link, author_id=author_id)
 
+# Links end points
 @app.put("/links/{link_id}", response_model=schemas.AuthorLink, tags=["Links"])
 def update_existing_link(link_id: int, url: str = None, platform: str = None, db: Session = Depends(get_db)):
     updated = crud.update_author_link(db, link_id=link_id, url=url, platform=platform)
@@ -114,3 +118,43 @@ def delete_existing_quote(quote_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Quote not found")
     return {"message": f"Quote {quote_id} has been deleted successfully"}
+
+# Quote of the Day (Seed based on the date)
+@app.get("/quotes/daily", response_model=schemas.Quote)
+def get_daily_quote(db: Session = Depends(get_db)):
+    quotes = db.query(models.Quote).all()
+    if not quotes:
+        raise HTTPException(status_code=404, detail="No quotes found")
+    # Nutzt den Tag des Jahres als Zufalls-Seed
+    seed = date.today().timetuple().tm_yday
+    random.seed(seed)
+    return random.choice(quotes)
+
+# Popular Quotes
+@app.get("/quotes/popular", response_model=List[schemas.Quote])
+def get_popular_quotes(limit: int = 6, db: Session = Depends(get_db)):
+    return db.query(models.Quote).order_by(models.Quote.likes.desc()).limit(limit).all()
+
+# Recent Quotes (The newest date = highest ID)
+@app.get("/quotes/recent", response_model=List[schemas.Quote])
+def get_recent_quotes(limit: int = 5, db: Session = Depends(get_db)):
+    return db.query(models.Quote).order_by(models.Quote.id.desc()).limit(limit).all()
+
+# Like/ unlike ---------------
+@app.post("/quotes/{quote_id}/like")
+def like_quote(quote_id: int, db: Session = Depends(get_db)):
+    quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    quote.likes += 1
+    db.commit()
+    return {"likes": quote.likes}
+
+@app.post("/quotes/{quote_id}/unlike")
+def unlike_quote(quote_id: int, db: Session = Depends(get_db)):
+    quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
+    if quote and quote.likes > 0:
+        quote.likes -= 1
+        db.commit()
+    return {"likes": quote.likes}

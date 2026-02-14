@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base # Das ist die Base mit (DeclarativeBase), die wir gerade besprochen haben
 
@@ -31,6 +31,7 @@ class Quote(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(String(500))
+    likes = Column(Integer, default=0)
     
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
     author: Mapped["Author"] = relationship(back_populates="quotes")
