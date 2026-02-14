@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { getQuotes } from '@/lib/api'
-import QuoteCard from './ui/atom/QuoteCard'
+import QuoteCard from '../atom/QuoteCard'
 
 export default function QuoteList() {
   const { data, isLoading, isError } = useQuery({

@@ -1,10 +1,10 @@
-import QuoteList from '@/components/QuoteList'
 import DailyQuoteSection from '@/components/ui/molecule/DailyQuoteSection'
 import PopularQuotesSection from '@/components/ui/molecule/PopularQuotesSection'
+import RecentQuotesSection from '@/components/ui/molecule/RecentQuotesSection'
 
 export default function Home() {
   return (
-    <main className="p-10 max-w-2xl mx-auto">
+    <main >
       <section>
           <DailyQuoteSection />
       </section>
@@ -12,9 +12,10 @@ export default function Home() {
       <section>
         <PopularQuotesSection />
       </section>
-      
-      <h1 className="text-3xl font-bold mb-6">Meine Weisheiten</h1>
-      <QuoteList />
+
+      <section>
+        <RecentQuotesSection />
+      </section>
     </main>
   )
 }

@@ -137,7 +137,7 @@ def get_popular_quotes(limit: int = 6, db: Session = Depends(get_db)):
 
 # Recent Quotes (The newest date = highest ID)
 @app.get("/quotes/recent", response_model=List[schemas.Quote])
-def get_recent_quotes(limit: int = 5, db: Session = Depends(get_db)):
+def get_recent_quotes(limit: int = 6, db: Session = Depends(get_db)):
     return db.query(models.Quote).order_by(models.Quote.id.desc()).limit(limit).all()
 
 # Like/ unlike ---------------
