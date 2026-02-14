@@ -33,7 +33,7 @@ export default function QuoteCard({ id, text, authorName, likes = 0 }: QuoteCard
     setIsLiked(likedQuotes.includes(id));
   }, [id]);
 
-  // 2. Die Mutation (Der API-Call)
+  // The Mutation (The API-Call)
   const mutation = useMutation({
   // Wir nehmen 'shouldLike' als Argument entgegen
   mutationFn: (shouldLike: boolean) => 

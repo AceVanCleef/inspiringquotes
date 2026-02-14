@@ -8,6 +8,21 @@ export async function getQuotes() {
   return response.json()
 }
 
+export async function getDailyQuote() {
+  const response = await fetch(`${BASE_URL}/quotes/daily/`)
+  if (!response.ok) {
+    throw new Error('Error while fetching quote of the day')
+  }
+  return response.json()
+}
+
+export async function getPopularQuotes() {
+  const response = await fetch(`${BASE_URL}/quotes/popular/`)
+  if (!response.ok) {
+    throw new Error('Error while fetching quote of the day')
+  }
+  return response.json()
+}
 
 export async function incrementLike(quoteId: number) {
   const response = await fetch(`${BASE_URL}/quotes/${quoteId}/like`, { method: 'POST' });
