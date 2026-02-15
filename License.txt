@@ -1,0 +1,10 @@
+Copyright (c) 2026 Stefan Wohlgensinger. All rights reserved.
+
+All rights reserved. No part of this source code, including but not limited to 
+the software, architecture, design, and documentation, may be reproduced, 
+distributed, modified, or transmitted in any form or by any means, including 
+copying, downloading, or any other electronic or mechanical methods, without 
+the prior written permission of the copyright holder.
+
+Commercial and non-commercial use, redistribution, or modification of this 
+software is strictly prohibited without express written authorization.
