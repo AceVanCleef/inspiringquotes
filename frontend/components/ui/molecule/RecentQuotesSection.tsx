@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { getRecentQuotes } from "@/lib/api"
-import QuoteCard from "../atom/QuoteCard" // Pfad zu deiner Komponente
+import QuoteCard from "../atom/QuoteCard"
 
 export default function RecentQuotesSection() {
   // 1. Daten vom Backend holen

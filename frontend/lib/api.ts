@@ -41,3 +41,11 @@ export async function decrementLike(quoteId: number) {
   const response = await fetch(`${BASE_URL}/quotes/${quoteId}/unlike`, { method: 'POST' });
   return response.json();
 }
+
+export async function getAuthors() {
+  const response = await fetch(`${BASE_URL}/authors/`)
+  if (!response.ok) {
+    throw new Error('Error while fetching authors')
+  }
+  return response.json()
+}

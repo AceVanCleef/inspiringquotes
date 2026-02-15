@@ -6,12 +6,12 @@ import QuoteCard from '../atom/QuoteCard'
 
 export default function QuoteList() {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['quotes'], // Das ist der Name im DevTools Panel
+    queryKey: ['quotes'],
     queryFn: getQuotes
   })
 
-  if (isLoading) return <p>Lade Zitate...</p>
-  if (isError) return <p>Backend nicht erreichbar?</p>
+  if (isLoading) return <p>Loading quotes...</p>
+  if (isError) return <p>Did backend not respond?</p>
 
   return (
     <div className="space-y-4">
