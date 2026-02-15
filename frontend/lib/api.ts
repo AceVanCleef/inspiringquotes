@@ -49,3 +49,19 @@ export async function getAuthors() {
   }
   return response.json()
 }
+
+export async function getAuthor(id: string) {
+  const response = await fetch(`${BASE_URL}/authors/${id}`)
+  if (!response.ok) {
+    throw new Error('Error while fetching authors with ID ${id}')
+  }
+  return response.json()
+}
+
+export async function getAuthorQuotes(author_id: string) {
+  const response = await fetch(`${BASE_URL}/authors/${author_id}/quotes`)
+  if (!response.ok) {
+    throw new Error('Error while fetching authors with ID ${id}')
+  }
+  return response.json()
+}

@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Author } from "@/types/author"
-
+import { useRouter } from "next/navigation"
 
 export default function AuthorTable() {
+    const router = useRouter()
     const { data, isLoading, isError } = useQuery<Author[]>({
         queryKey: ['authors'],
         queryFn: getAuthors
@@ -32,7 +33,7 @@ export default function AuthorTable() {
             </TableHeader>
             <TableBody>
                 { data?.map((author: Author) => 
-                    <TableRow key={author.id} className="group cursor-pointer hover:bg-slate-50/50">
+                    <TableRow key={author.id} onClick={() => router.push(`/authors/${author.id}`)} className="group cursor-pointer hover:bg-slate-50/50">
                         <TableCell className="py-6 text-lg tracking-tight">
                             <span className="text-slate-400 group-hover:text-slate-900 transition-colors">
                             {author.first_name}

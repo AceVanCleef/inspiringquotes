@@ -158,3 +158,9 @@ def unlike_quote(quote_id: int, db: Session = Depends(get_db)):
         quote.likes -= 1
         db.commit()
     return {"likes": quote.likes}
+
+@app.get("/authors/{author_id}/quotes", response_model=List[schemas.Quote])
+def read_author_quotes(author_id: int, db: Session = Depends(get_db)):
+    # Simpler Query: Hole alle Quotes, bei denen author_id passt
+    quotes = crud.get_quotes_by_author(db, author_id=author_id)
+    return quotes

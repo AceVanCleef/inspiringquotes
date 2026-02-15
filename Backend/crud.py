@@ -3,7 +3,10 @@ from sqlalchemy import select
 import models, schemas # schemas sind die Pydantic-Baupläne (folgen gleich)
 
 def get_author(db: Session, author_id: int):
-    return db.execute(select(models.Author).where(models.Author.id == author_id)).scalar_one_or_none()
+    return db.execute(
+        select(models.Author)
+        .where(models.Author.id == author_id)
+        ).scalar_one_or_none()
 
 def get_authors(db: Session, skip: int = 0, limit: int = 100):
     """
