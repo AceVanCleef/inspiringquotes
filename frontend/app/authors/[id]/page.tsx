@@ -1,7 +1,7 @@
 import QuoteCard from "@/components/ui/atom/QuoteCard";
+import QuotesList from "@/components/ui/molecule/QuotesList";
 import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
-import { Quote } from "@/types/quote";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -30,6 +30,8 @@ export default async function AuthorProfilePage({
             </h1>
             <p className="text-slate-500 mt-2">{quotes?.length} Quotes of this author</p>
         </header>
+
+        <QuotesList quotes={quotes} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {quotes.map((quote: any) => (

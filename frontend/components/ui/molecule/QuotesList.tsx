@@ -1,0 +1,39 @@
+"use client"
+
+import { useQuery } from '@tanstack/react-query'
+import { getQuotes } from '@/lib/api'
+import QuoteCard from '../atom/QuoteCard'
+
+
+interface QuotesListProps {
+  // type: 'single-column' | 'grid'
+  quotes: any[];
+}
+
+export default function QuotesList({ quotes }: QuotesListProps) {
+  if (!quotes || quotes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 border-2 border-dashed border-slate-100 rounded-2xl">
+        <p className="text-slate-400 italic text-lg text-center">
+          No quotes found.
+        </p>
+      </div>
+    );
+  }
+  //         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+
+  return (
+    <div className="space-y-4">
+      {quotes?.map((quote: any) => (
+        <QuoteCard 
+          key={quote.id}
+          id={quote.id}
+          text={quote.text}
+          authorName={`${quote.author.first_name} ${quote.author.last_name}`}
+          likes={quote.likes} 
+        />
+      ))}
+    </div>
+  )
+}
