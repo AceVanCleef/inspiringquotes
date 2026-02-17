@@ -8,9 +8,10 @@ import { Quote } from "@/types/quote";
 interface QuotesListViewProps {
     initialQuotes: Quote[]; // Später durch dein Quote-Interface ersetzen
     authors: Author[];
+    type: 'single-column' | 'grid'
 }
 
-export default function QuotesListView({ initialQuotes, authors}: QuotesListViewProps) {
+export default function QuotesListView({ initialQuotes, authors, type = 'single-column'}: QuotesListViewProps) {
     const [displayQuotes, setDisplayQuotes] = useState(initialQuotes);
 
     return (
@@ -21,7 +22,7 @@ export default function QuotesListView({ initialQuotes, authors}: QuotesListView
                 onFilteredResults={setDisplayQuotes} 
             />
 
-            <QuotesList quotes={displayQuotes} />
+            <QuotesList quotes={displayQuotes} type={type} />
         </div>
     )
 }

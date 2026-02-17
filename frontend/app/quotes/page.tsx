@@ -9,7 +9,7 @@ export default async function Quotes() {
     
     return (
         <div>
-            <QuotesListView initialQuotes={initialQuotes} authors={authors} />
+            <QuotesListView initialQuotes={initialQuotes} authors={authors} type='grid' />
         </div>
     )
 }
