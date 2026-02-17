@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Quote } from '@/types/quote';
 
 interface QuotesListProps {
-  type: 'single-column' | 'grid'
+  type?: 'single-column' | 'grid'
   quotes: Quote[];
 }
 
@@ -21,8 +21,6 @@ export default function QuotesList({ quotes, type='single-column' }: QuotesListP
       </div>
     );
   }
-  //         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
 
   return (
     <div className={cn(

@@ -78,7 +78,7 @@ export default function QuotesFilterBar({
             value={currentSelectedNames}
             onValueChange={handleAuthorChange}
           >
-            <ComboboxChips ref={anchor} className="w-full bg-white border-slate-200 min-h-[44px]">
+            <ComboboxChips ref={anchor} className="w-full bg-white border-slate-200 min-h-11">
               <ComboboxValue>
                 {(values) => (
                   <React.Fragment>
@@ -87,13 +87,13 @@ export default function QuotesFilterBar({
                         {value}
                       </ComboboxChip>
                     ))}
-                    <ComboboxChipsInput placeholder="Mentoren suchen..." />
+                    <ComboboxChipsInput placeholder="Search authors..." />
                   </React.Fragment>
                 )}
               </ComboboxValue>
             </ComboboxChips>
             <ComboboxContent anchor={anchor}>
-              <ComboboxEmpty>Keinen Mentor gefunden.</ComboboxEmpty>
+              <ComboboxEmpty>No author found.</ComboboxEmpty>
               <ComboboxList>
                 {(item) => (
                   <ComboboxItem key={item} value={item}>
@@ -112,7 +112,7 @@ export default function QuotesFilterBar({
           </label>
           <input
             type="text"
-            placeholder="In Zitaten suchen..."
+            placeholder="Search in quotes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-11 px-4 bg-white border border-slate-200 rounded-md outline-none focus:ring-2 ring-slate-100 transition-all"

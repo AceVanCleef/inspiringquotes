@@ -32,22 +32,6 @@ export default async function AuthorProfilePage({
         </header>
 
         <QuotesList quotes={quotes} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {quotes.map((quote: any) => (
-                <QuoteCard 
-                    key={quote.id}
-                    id={quote.id}
-                    text={quote.text}
-                    authorName={`${quote.author.first_name} ${quote.author.last_name}`}
-                    likes={quote.likes} 
-                />
-            ))}
-            
-            {quotes.length === 0 && (
-                <p className="text-slate-400 italic">Noch keine Zitate für diesen Mentor hinterlegt.</p>
-            )}
-        </div>
     </div>
   )
 }

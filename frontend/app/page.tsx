@@ -11,7 +11,7 @@ export default async function Home() {
       
   return (
     <main >
-      <section>
+      <section className="pb-12 pt-6">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">
           Quote of the Day
         </h2>
@@ -23,11 +23,17 @@ export default async function Home() {
         />
       </section>
 
-      <section>
-        <QuotesList quotes={popularQuotes} />
+      <section className="pb-12">
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">
+          Most Popular Quotes
+        </h2>
+        <QuotesList quotes={popularQuotes} type='grid'/>
       </section>
 
-      <section>
+      <section className="pb-12">
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">
+          Most Recent Quotes
+        </h2>
         <QuotesList quotes={recentQuotes} />
       </section>
     </main>
