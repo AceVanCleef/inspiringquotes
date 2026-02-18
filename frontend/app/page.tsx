@@ -10,8 +10,8 @@ export default async function Home() {
       ]);
       
   return (
-    <main >
-      <section className="pb-12 pt-6">
+    <main className='pt-4'>
+      <section className="pb-12">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">
           Quote of the Day
         </h2>
