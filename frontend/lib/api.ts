@@ -1,3 +1,5 @@
+import { Quote } from "@/types/quote";
+
 const BASE_URL = "http://127.0.0.1:8000"
 
 export async function getQuotes() {
@@ -6,6 +8,17 @@ export async function getQuotes() {
     throw new Error('Error while fetching quotes')
   }
   return response.json()
+}
+
+export async function getQuote(quoteId: number): Promise<Quote> {
+  const response = await fetch(`${BASE_URL}/quote/${quoteId}`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      console.warn(`Quote with ID ${quoteId} not found`);
+    }
+    throw new Error(`Failed to fetch quote #${quoteId}: ${response.statusText}`);
+  }
+  return response.json(); 
 }
 
 export async function getDailyQuote() {

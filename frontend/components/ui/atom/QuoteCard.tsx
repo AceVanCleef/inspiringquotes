@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Heart } from "lucide-react"
+import { Check, Heart, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -30,6 +30,7 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
   const [isLiked, setIsLiked] = useState(false);
   const [localLikes, setLocalLikes] = useState(initialLikes);
   const authorName = `${author.first_name} ${author.last_name}`;
+  const [urlCopied, setUrlCopied] = useState(false);
 
   useEffect(() => {
     const likedQuotes = JSON.parse(localStorage.getItem("liked_quotes") || "[]");
@@ -71,6 +72,23 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
     mutation.mutate(nextLikedState); 
   };
 
+  const handleCopyLink = async () => {
+    const shareUrl = `${window.location.origin}/quote/${id}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setUrlCopied(true);
+      
+      // Reset the icon again after 2 seconds
+      setTimeout(() => setUrlCopied(false), 2000);
+      
+      // Optional: Ein Toast-Feedback (falls du Sonner oder Toast UI nutzt)
+      // toast.success("Link kopiert!");
+    } catch (err) {
+      console.error("Error while copying url:", err);
+    }
+  }
+
   return (
     <Card>
       <CardContent>
@@ -85,7 +103,7 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
           </Link>
         </p>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flew-row gap-2">
         <Button 
         onClick={toggleLike}
         variant="outline"
@@ -95,6 +113,23 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
           )}>
           <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
           <span>{localLikes}</span>
+        </Button>
+        <Button 
+        onClick={handleCopyLink}
+        variant="outline"
+        className="h-9 px-2 text-slate-400 hover:text-rose-500 transition-colors"
+        >
+          {urlCopied ? (
+          <>
+            <Check className="h-4 w-4 mr-2 text-green-500" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-green-500">Copied to clipboard</span>
+          </>
+        ) : (
+          <>
+            <Share2 className="h-4 w-4 mr-2" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Share</span>
+          </>
+        )}
         </Button>
       </CardFooter>
     </Card>

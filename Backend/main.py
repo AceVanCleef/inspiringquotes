@@ -96,12 +96,18 @@ def read_quotes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Returns all quotes (with nested author information)."""
     return crud.get_quotes(db, skip=skip, limit=limit)
 
+@app.get("/quote/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
+def read_quote(quote_id: int, db: Session = Depends(get_db)):
+    quote = crud.get_quote(db, quote_id=quote_id)
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    return quote
+
+
 @app.get("/authors/{author_id}/quotes", response_model=list[schemas.Quote], tags=["Authors"])
 def read_author_quotes(author_id: int, db: Session = Depends(get_db)):
     quotes = crud.get_quotes_by_author(db, author_id=author_id)
     if not quotes:
-        # Wir geben eine leere Liste zurück oder einen Fehler, 
-        # falls du sichergehen willst, dass der Autor existiert.
         return []
     return quotes
 
@@ -120,7 +126,7 @@ def delete_existing_quote(quote_id: int, db: Session = Depends(get_db)):
     return {"message": f"Quote {quote_id} has been deleted successfully"}
 
 # Quote of the Day (Seed based on the date)
-@app.get("/quotes/daily", response_model=schemas.Quote)
+@app.get("/quotes/daily", response_model=schemas.Quote, tags=["Quotes"])
 def get_daily_quote(db: Session = Depends(get_db)):
     quotes = db.query(models.Quote).all()
     if not quotes:
@@ -131,17 +137,17 @@ def get_daily_quote(db: Session = Depends(get_db)):
     return random.choice(quotes)
 
 # Popular Quotes
-@app.get("/quotes/popular", response_model=List[schemas.Quote])
+@app.get("/quotes/popular", response_model=List[schemas.Quote], tags=["Quotes", "popular"])
 def get_popular_quotes(limit: int = 6, db: Session = Depends(get_db)):
     return db.query(models.Quote).order_by(models.Quote.likes.desc()).limit(limit).all()
 
 # Recent Quotes (The newest date = highest ID)
-@app.get("/quotes/recent", response_model=List[schemas.Quote])
+@app.get("/quotes/recent", response_model=List[schemas.Quote], tags=["Quotes", "recent"])
 def get_recent_quotes(limit: int = 6, db: Session = Depends(get_db)):
     return db.query(models.Quote).order_by(models.Quote.id.desc()).limit(limit).all()
 
 # Like/ unlike ---------------
-@app.post("/quotes/{quote_id}/like")
+@app.post("/quotes/{quote_id}/like", tags=["Quotes", "likes"])
 def like_quote(quote_id: int, db: Session = Depends(get_db)):
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
     if not quote:
@@ -151,7 +157,7 @@ def like_quote(quote_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"likes": quote.likes}
 
-@app.post("/quotes/{quote_id}/unlike")
+@app.post("/quotes/{quote_id}/unlike", tags=["Quotes", "likes"])
 def unlike_quote(quote_id: int, db: Session = Depends(get_db)):
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
     if quote and quote.likes > 0:
@@ -159,7 +165,7 @@ def unlike_quote(quote_id: int, db: Session = Depends(get_db)):
         db.commit()
     return {"likes": quote.likes}
 
-@app.get("/authors/{author_id}/quotes", response_model=List[schemas.Quote])
+@app.get("/authors/{author_id}/quotes", response_model=List[schemas.Quote], tags=["Authors", "Quotes"])
 def read_author_quotes(author_id: int, db: Session = Depends(get_db)):
     # Simpler Query: Hole alle Quotes, bei denen author_id passt
     quotes = crud.get_quotes_by_author(db, author_id=author_id)

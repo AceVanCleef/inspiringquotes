@@ -48,6 +48,9 @@ def get_quotes(db: Session, skip: int = 0, limit: int = 100):
 def get_quotes_by_author(db: Session, author_id: int):
     return db.query(models.Quote).filter(models.Quote.author_id == author_id).all()
 
+def get_quote(db: Session, quote_id: int):
+    return db.query(models.Quote).filter(models.Quote.id == quote_id).first()
+
 def create_quote(db: Session, quote: schemas.QuoteCreate, author_id: int):
     db_quote = models.Quote(**quote.model_dump(), author_id=author_id)
     db.add(db_quote)

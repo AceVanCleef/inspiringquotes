@@ -1,7 +1,6 @@
 import QuotesListView from "@/components/ui/organisms/QuotesListView";
 import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 export default async function AuthorProfilePage({ 
