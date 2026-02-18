@@ -24,27 +24,24 @@ interface QuoteCardProps {
   likes: number;
 }
 
-export default function QuoteCard({ id, text, authorName, likes = 0 }: QuoteCardProps) {
+export default function QuoteCard({ id, text, authorName, likes: initialLikes = 0 }: QuoteCardProps) {
   const [isLiked, setIsLiked] = useState(false);
-  const queryClient = useQueryClient();
+const [localLikes, setLocalLikes] = useState(initialLikes);
 
   useEffect(() => {
     const likedQuotes = JSON.parse(localStorage.getItem("liked_quotes") || "[]");
     setIsLiked(likedQuotes.includes(id));
   }, [id]);
 
+  useEffect(() => {
+    setLocalLikes(initialLikes);
+  }, [initialLikes]);
+
   // The Mutation (The API-Call)
   const mutation = useMutation({
-  // Wir nehmen 'shouldLike' als Argument entgegen
   mutationFn: (shouldLike: boolean) => 
     shouldLike ? incrementLike(id) : decrementLike(id),
-  
-  onSuccess: () => {
-    // Das sorgt dafür, dass die Zahlen auf dem Dashboard frisch vom Server kommen
-    queryClient.invalidateQueries({ queryKey: ["quotes"] });
-    queryClient.invalidateQueries({ queryKey: ["quote-daily"] });
-  },
-});
+  });
 
   const toggleLike = () => {
     const likedQuotes = JSON.parse(localStorage.getItem("liked_quotes") || "[]");
@@ -57,9 +54,11 @@ export default function QuoteCard({ id, text, authorName, likes = 0 }: QuoteCard
     // 1. LocalStorage & UI State sofort updaten
     if (nextLikedState) {
       localStorage.setItem("liked_quotes", JSON.stringify([...likedQuotes, id]));
+      setLocalLikes(prev => prev + 1);
     } else {
       const updated = likedQuotes.filter((quoteId: number) => quoteId !== id);
       localStorage.setItem("liked_quotes", JSON.stringify(updated));
+      setLocalLikes(prev => prev - 1);
     }
     
     setIsLiked(nextLikedState);
@@ -86,7 +85,7 @@ export default function QuoteCard({ id, text, authorName, likes = 0 }: QuoteCard
             isLiked ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50" : "text-slate-500"
           )}>
           <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-          <span>{likes}</span>
+          <span>{localLikes}</span>
         </Button>
       </CardFooter>
     </Card>
