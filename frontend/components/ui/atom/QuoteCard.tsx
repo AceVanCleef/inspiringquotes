@@ -15,18 +15,21 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { incrementLike, decrementLike } from "@/lib/api"
 import { cn } from "@/lib/utils"
+import { Author } from "@/types/author"
+import Link from "next/link"
 
-// components/QuoteCard.tsx
+
 interface QuoteCardProps {
   id: number;
   text: string;
-  authorName: string;
+  author: Author;
   likes: number;
 }
 
-export default function QuoteCard({ id, text, authorName, likes: initialLikes = 0 }: QuoteCardProps) {
+export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }: QuoteCardProps) {
   const [isLiked, setIsLiked] = useState(false);
-const [localLikes, setLocalLikes] = useState(initialLikes);
+  const [localLikes, setLocalLikes] = useState(initialLikes);
+  const authorName = `${author.first_name} ${author.last_name}`;
 
   useEffect(() => {
     const likedQuotes = JSON.parse(localStorage.getItem("liked_quotes") || "[]");
@@ -73,7 +76,13 @@ const [localLikes, setLocalLikes] = useState(initialLikes);
       <CardContent>
         <p className="text-lg italic text-slate-800">"{text}"</p>
         <p className="text-sm font-bold mt-2 text-slate-500 uppercase tracking-wider">
-          - {authorName}
+          <span>- </span>          
+          <Link 
+            href={`/authors/${author.id}`} 
+            className="hover:text-rose-600 transition-colors cursor-pointer underline-offset-4 hover:underline"
+          >
+            {authorName}
+          </Link>
         </p>
       </CardContent>
       <CardFooter>

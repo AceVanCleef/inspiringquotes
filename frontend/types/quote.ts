@@ -5,5 +5,5 @@ export interface Quote {
   text: string;
   likes: number;
   author_id: number;
-  author: Author; // Hier steckt dein verschachteltes Author-Objekt drin
+  author: Author;
 }

@@ -33,7 +33,7 @@ export default function QuotesList({ quotes, type='single-column' }: QuotesListP
           key={quote.id}
           id={quote.id}
           text={quote.text}
-          authorName={`${quote.author.first_name} ${quote.author.last_name}`}
+          author={quote.author}
           likes={quote.likes} 
         />
       ))}

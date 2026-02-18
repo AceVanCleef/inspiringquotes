@@ -18,7 +18,7 @@ export default async function Home() {
         <QuoteCard 
             id={dailyQuote.id}
             text={dailyQuote.text}
-            authorName={`${dailyQuote.author.first_name} ${dailyQuote.author.last_name}`}
+            author={dailyQuote.author}
             likes={dailyQuote.likes} 
         />
       </section>

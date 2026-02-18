@@ -1,4 +1,3 @@
-import QuoteCard from "@/components/ui/atom/QuoteCard";
 import QuotesList from "@/components/ui/molecule/QuotesList";
 import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
