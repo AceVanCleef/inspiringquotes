@@ -1,6 +1,6 @@
 "use client"
 import { useMemo, useState } from "react";
-import { RotateCcw, ListFilterPlus } from 'lucide-react';
+import { RotateCcw, ListFilterPlus, X } from 'lucide-react';
 import SearchInput from "../atom/SearchInput";
 import QuotesList from "../molecule/QuotesList";
 import { Author } from "@/types/author";
@@ -52,22 +52,45 @@ export default function QuotesListView({ initialQuotes, authors, type = 'single-
             setSearch("");
             setSelectedAuthorIds([]);
             setSortType(SORT_OPTIONS.DEFAULT);
+            setMoreFiltersShown(false); // closes extra filters
         };
 
         const isFiltered = search !== "" || selectedAuthorIds.length > 0 || sortType !== SORT_OPTIONS.DEFAULT;
 
+        // showing more / less filters
+        const [moreFiltersShown, setMoreFiltersShown] = useState(false);
+
     return (
-        <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <SearchInput value={search} onChange={setSearch} />
-                <SortSelect<SortOption> value={sortType} onValueChange={setSortType} options={sortSelectOptions} />
+        <div className="space-y-4 pt-4">
+            <div className="flex flex-col md:flex-row items-end gap-4 w-full">
+                <div className="flex-1 w-full">
+                    <SearchInput value={search} onChange={setSearch} />
+                </div>
+
+                <div className="flex-0 w-full flex flex-row gap-4 items-end justify-between">
+                    <SortSelect<SortOption> value={sortType} onValueChange={setSortType} options={sortSelectOptions} />
+                    <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => setMoreFiltersShown(!moreFiltersShown)}
+                        title={moreFiltersShown ? "Less filters" : "More filters"}
+                        className={`h-11 w-11 shrink-0 transition-all ${moreFiltersShown ? 'bg-slate-100 text-slate-900' : 'text-slate-500'}`}
+                        >
+                            {moreFiltersShown ? <X className="h-5 w-5" /> : <ListFilterPlus className="h-5 w-5" />}
+                    </Button>
+                </div>          
             </div>
 
-            <AuthorMultiSelect 
-                authors={authors} 
-                selectedIds={selectedAuthorIds} 
-                onSelectedIdsChange={setSelectedAuthorIds} 
-            />
+            {moreFiltersShown && (
+                <div className="p-4 bg-slate-50/50 rounded-xl border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <AuthorMultiSelect 
+                        authors={authors} 
+                        selectedIds={selectedAuthorIds} 
+                        onSelectedIdsChange={setSelectedAuthorIds} 
+                    />
+                </div>
+            )}
+
             <div className="flex items-center justify-between">
                 <p className="text-sm text-slate-500">
                     {finalQuotes.length} Quotes found
