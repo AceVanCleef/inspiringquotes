@@ -65,45 +65,46 @@ export default function QuotesFilterBar({
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-slate-50/50 rounded-2xl border border-slate-100">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-        
-        {/* SHADCN COMBOBOX (Multi-Select) */}
-        <div className="md:col-span-2 space-y-2">
-          <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
-            Mentoren (Multi-Select)
-          </label>
-          <Combobox
-            multiple
-            items={authorNames}
-            value={currentSelectedNames}
-            onValueChange={handleAuthorChange}
-          >
-            <ComboboxChips ref={anchor} className="w-full bg-white border-slate-200 min-h-11">
-              <ComboboxValue>
-                {(values) => (
-                  <React.Fragment>
-                    {values.map((value: string) => (
-                      <ComboboxChip key={value} className="bg-slate-900 text-white border-none">
-                        {value}
-                      </ComboboxChip>
-                    ))}
-                    <ComboboxChipsInput placeholder="Search authors..." />
-                  </React.Fragment>
-                )}
-              </ComboboxValue>
-            </ComboboxChips>
-            <ComboboxContent anchor={anchor}>
-              <ComboboxEmpty>No author found.</ComboboxEmpty>
-              <ComboboxList>
-                {(item) => (
-                  <ComboboxItem key={item} value={item}>
-                    {item}
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+          {/* SHADCN COMBOBOX (Multi-Select) */}
+          {authors.length > 1 && (
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                Authors (Multi-Select)
+              </label>
+              <Combobox
+                multiple
+                items={authorNames}
+                value={currentSelectedNames}
+                onValueChange={handleAuthorChange}
+              >
+                <ComboboxChips ref={anchor} className="w-full bg-white border-slate-200 min-h-11">
+                  <ComboboxValue>
+                    {(values) => (
+                      <React.Fragment>
+                        {values.map((value: string) => (
+                          <ComboboxChip key={value} className="bg-slate-900 text-white border-none">
+                            {value}
+                          </ComboboxChip>
+                        ))}
+                        <ComboboxChipsInput placeholder="Search authors..." />
+                      </React.Fragment>
+                    )}
+                  </ComboboxValue>
+                </ComboboxChips>
+                <ComboboxContent anchor={anchor}>
+                  <ComboboxEmpty>No author found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(item) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            </div>
+          )}
 
         {/* TEXT-SUCHE */}
         <div className="space-y-2">

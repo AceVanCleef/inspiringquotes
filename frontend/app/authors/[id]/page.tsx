@@ -1,4 +1,4 @@
-import QuotesList from "@/components/ui/molecule/QuotesList";
+import QuotesListView from "@/components/ui/organisms/QuotesListView";
 import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
 import { useQuery } from "@tanstack/react-query";
@@ -30,7 +30,7 @@ export default async function AuthorProfilePage({
             <p className="text-slate-500 mt-2">{quotes?.length} Quotes of this author</p>
         </header>
 
-        <QuotesList quotes={quotes} />
+        <QuotesListView initialQuotes={quotes} authors={[author]} />
     </div>
   )
 }

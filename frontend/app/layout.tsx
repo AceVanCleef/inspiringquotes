@@ -26,13 +26,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`p-10 max-w-2xl mx-auto ${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NavBar />
-        <Providers>
-          {children}
-        </Providers>
+      <body> 
+        {/* 
+          Important: 
+            classNames for Body must be put in div below to prevent issue with shadcn/select
+            Source: https://github.com/shadcn-ui/ui/issues/977#issuecomment-1646616629
+        */}
+        <div
+          className={`p-10 max-w-2xl mx-auto ${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <NavBar />
+          <Providers>
+            {children}
+          </Providers>
+        </div>
       </body>
     </html>
   );
