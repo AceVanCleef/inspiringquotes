@@ -17,7 +17,7 @@ interface SortSelectProps<T extends string> {
 
 export default function SortSelect<T extends string>({ value, onValueChange, options, label = "Sort:" }: SortSelectProps<T>) {
   return (
-    <div className="flex items-center gap-2">
+    <div>
       <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{label}</span>
       <Select value={value} onValueChange={(val) => onValueChange(val as T)}>
         <SelectTrigger className="w-48 h-9 bg-white border-slate-200 text-xs shadow-sm">
