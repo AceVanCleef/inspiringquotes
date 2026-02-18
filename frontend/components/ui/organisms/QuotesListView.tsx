@@ -59,6 +59,7 @@ export default function QuotesListView({ initialQuotes, authors, type = 'single-
 
         // showing more / less filters
         const [moreFiltersShown, setMoreFiltersShown] = useState(false);
+        const [hasMoreFilters, setHasMoreFilters] = useState(authors.length > 1);
 
     return (
         <div className="space-y-4 pt-4">
@@ -69,7 +70,9 @@ export default function QuotesListView({ initialQuotes, authors, type = 'single-
 
                 <div className="flex-0 w-full flex flex-row gap-4 items-end justify-between">
                     <SortSelect<SortOption> value={sortType} onValueChange={setSortType} options={sortSelectOptions} />
-                    <Button 
+                    
+                    {hasMoreFilters && (
+                        <Button 
                         variant="ghost" 
                         size="icon"
                         onClick={() => setMoreFiltersShown(!moreFiltersShown)}
@@ -78,6 +81,7 @@ export default function QuotesListView({ initialQuotes, authors, type = 'single-
                         >
                             {moreFiltersShown ? <X className="h-5 w-5" /> : <ListFilterPlus className="h-5 w-5" />}
                     </Button>
+                    )}
                 </div>          
             </div>
 
