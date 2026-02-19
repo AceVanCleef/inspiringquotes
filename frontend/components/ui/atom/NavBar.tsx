@@ -20,7 +20,7 @@ export default function Navbar() {
         {/* Logo / Name der Seite */}
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-serif font-bold tracking-tight text-slate-900">
-            Inspiring Quotes
+            Inspiring Quotes<span className="text-rose-500 text-sm">.ch</span>
           </span>
         </Link>
 
