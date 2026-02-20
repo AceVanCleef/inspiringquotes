@@ -85,6 +85,11 @@ def delete_quote(db: Session, quote_id: int):
         return True
     return False
 
+def delete_quotes_by_author(db: Session, author_id: int):
+    result = db.query(models.Quote).filter(models.Quote.author_id == author_id).delete()
+    db.commit()
+    return result
+
 def create_author_link(db: Session, link: schemas.AuthorLinkCreate, author_id: int):
     # 1. Daten aus dem Schema holen und die author_id aus der URL sicherstellen
     link_data = link.model_dump()

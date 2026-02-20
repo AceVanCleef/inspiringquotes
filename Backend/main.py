@@ -103,14 +103,6 @@ def read_quote(quote_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Quote not found")
     return quote
 
-
-@app.get("/authors/{author_id}/quotes", response_model=list[schemas.Quote], tags=["Authors"])
-def read_author_quotes(author_id: int, db: Session = Depends(get_db)):
-    quotes = crud.get_quotes_by_author(db, author_id=author_id)
-    if not quotes:
-        return []
-    return quotes
-
 @app.put("/quotes/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
 def update_existing_quote(quote_id: int, text: str, db: Session = Depends(get_db)):
     updated_quote = crud.update_quote(db, quote_id=quote_id, text=text)
@@ -124,6 +116,23 @@ def delete_existing_quote(quote_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Quote not found")
     return {"message": f"Quote {quote_id} has been deleted successfully"}
+
+
+@app.get("/authors/{author_id}/quotes", response_model=list[schemas.Quote], tags=["Quotes"])
+def read_author_quotes(author_id: int, db: Session = Depends(get_db)):
+    quotes = crud.get_quotes_by_author(db, author_id=author_id)
+    if not quotes:
+        return []
+    return quotes
+
+@app.delete("/authors/{author_id}/quotes", tags=["Quotes"])
+def delete_all_author_quotes(author_id: int, db: Session = Depends(get_db)):
+    author = crud.get_author(db, author_id=author_id)
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found")
+    
+    deleted_count = crud.delete_quotes_by_author(db, author_id=author_id)
+    return {"message": f"Successfully deleted {deleted_count} quotes."}
 
 # Quote of the Day (Seed based on the date)
 @app.get("/quotes/daily", response_model=schemas.Quote, tags=["Quotes"])
@@ -164,9 +173,3 @@ def unlike_quote(quote_id: int, db: Session = Depends(get_db)):
         quote.likes -= 1
         db.commit()
     return {"likes": quote.likes}
-
-@app.get("/authors/{author_id}/quotes", response_model=List[schemas.Quote], tags=["Authors", "Quotes"])
-def read_author_quotes(author_id: int, db: Session = Depends(get_db)):
-    # Simpler Query: Hole alle Quotes, bei denen author_id passt
-    quotes = crud.get_quotes_by_author(db, author_id=author_id)
-    return quotes
