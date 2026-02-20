@@ -20,3 +20,9 @@ export const sortSelectOptions: { value: SortOption; label: string }[] = [
   { value: SORT_OPTIONS.ALPHA_ASC, label: "Alphabetical (A-Z)" },
   { value: SORT_OPTIONS.ALPHA_DESC, label: "Alphabetical (Z-A)" },
 ];
+
+export const sortAuthorSelectOptions: { value: SortOption; label: string }[] = [
+  { value: SORT_OPTIONS.DEFAULT, label: "-" },
+  { value: SORT_OPTIONS.ALPHA_ASC, label: "Alphabetical (A-Z)" },
+  { value: SORT_OPTIONS.ALPHA_DESC, label: "Alphabetical (Z-A)" },
+];
