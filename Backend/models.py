@@ -10,9 +10,13 @@ class Author(Base):
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(50))
     bio: Mapped[Optional[str]] = mapped_column(String(500))
+    profile_image_path: Mapped[Optional[str]] = mapped_column(String(255))
     
     # An author can have multiple links
-    links: Mapped[List["AuthorLink"]] = relationship(back_populates="author")
+    links: Mapped[List["AuthorLink"]] = relationship(
+        back_populates="author",
+        cascade="all, delete-orphan"
+    )
     
     # The relationship to the quotes
     quotes: Mapped[List["Quote"]] = relationship(back_populates="author")

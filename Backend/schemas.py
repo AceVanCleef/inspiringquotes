@@ -19,6 +19,15 @@ class AuthorLinkBase(BaseModel):
 class AuthorLinkCreate(AuthorLinkBase):
     author_id: int
     link_type_id: int
+    
+class AuthorLinkUpdate(BaseModel):
+    url: Optional[str] = None
+    label: Optional[str] = None
+    link_type_id: Optional[int] = None
+    author_id: Optional[int] = None
+    
+    class Config:
+        from_attributes = True
 
 class AuthorLink(AuthorLinkBase):
     id: int
@@ -33,9 +42,20 @@ class AuthorBase(BaseModel):
     first_name: str
     last_name: str
     bio: Optional[str] = None
+    profile_image_path: Optional[str] = None
 
 class AuthorCreate(AuthorBase):
     pass
+
+class AuthorUpdate(BaseModel):
+    # Alle Felder sind hier Optional, damit man auch nur Teil-Updates machen kann
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    bio: Optional[str] = None
+    profile_image_path: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 class Author(AuthorBase):
     id: int

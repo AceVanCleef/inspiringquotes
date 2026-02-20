@@ -41,7 +41,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-slate-400 uppercase tracking-widest">
-          <p>© {currentYear} inspiringquotes.ch. All rights reserved.</p>
+          <p>© {currentYear} inspiringquotes.ch.<br /> All rights reserved.</p>
           <p>Developed with intent by <span className="text-slate-600 font-bold underline cursor-help" title="Great Impact Studio">Great Impact Studio</span></p>
         </div>
       </div>

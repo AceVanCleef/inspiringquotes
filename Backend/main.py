@@ -61,8 +61,8 @@ def create_link_for_author(author_id: int, link: schemas.AuthorLinkCreate, db: S
 
 # Links end points
 @app.put("/links/{link_id}", response_model=schemas.AuthorLink, tags=["Links"])
-def update_existing_link(link_id: int, url: str = None, platform: str = None, db: Session = Depends(get_db)):
-    updated = crud.update_author_link(db, link_id=link_id, url=url, platform=platform)
+def update_existing_link(link_id: int, link_data: schemas.AuthorLinkUpdate, db: Session = Depends(get_db)):
+    updated = crud.update_author_link(db, link_id=link_id, link_data=link_data)
     if not updated:
         raise HTTPException(status_code=404, detail="Link nicht gefunden")
     return updated
@@ -74,8 +74,8 @@ def delete_existing_link(link_id: int, db: Session = Depends(get_db)):
     return {"message": "Link wurde gelöscht"}
 
 @app.put("/authors/{author_id}", response_model=schemas.Author, tags=["Authors"])
-def update_existing_author(author_id: int, first_name: str = None, last_name: str = None, db: Session = Depends(get_db)):
-    updated = crud.update_author(db, author_id=author_id, first_name=first_name, last_name=last_name)
+def update_existing_author(author_id: int, author_data: schemas.AuthorUpdate, db: Session = Depends(get_db)):
+    updated = crud.update_author(db, author_id=author_id, author_update=author_data)
     if not updated:
         raise HTTPException(status_code=404, detail="Author not found")
     return updated

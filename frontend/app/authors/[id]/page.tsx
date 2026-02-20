@@ -1,3 +1,4 @@
+import AuthorAvatar from "@/components/ui/atom/AuthorAvatar";
 import QuotesListView from "@/components/ui/organisms/QuotesListView";
 import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
@@ -18,15 +19,21 @@ export default async function AuthorProfilePage({
   return (
     <div className="container mx-auto">
         <Link 
-            href="/authors" 
-            className="text-xl group flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors mb-8 w-fit"
+          href="/authors" 
+          className="text-xl group flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors mb-8 w-fit"
         >←</Link>
         
         <header>
+          <div className="flex flex-row gap-4">
             <h1 className="text-4xl font-serif font-bold text-slate-900">
-                {author.first_name} {author.last_name}
+              {author.first_name} {author.last_name}
             </h1>
-            <p className="text-slate-500 mt-2">{quotes?.length} Quotes of this author</p>
+            <AuthorAvatar author={author} />
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {author.bio}
+          </p>
+          <p className="text-slate-500 mt-2">{quotes?.length} Quotes of this author</p>
         </header>
 
         <QuotesListView initialQuotes={quotes} authors={[author]} />

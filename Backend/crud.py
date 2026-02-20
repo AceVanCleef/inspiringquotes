@@ -27,12 +27,16 @@ def create_author(db: Session, author: schemas.AuthorCreate):
     db.refresh(db_author)
     return db_author
 
-def update_author(db: Session, author_id: int, first_name: str = None, last_name: str = None, bio: str = None):
+def update_author(db: Session, author_id: int, author_update: schemas.AuthorUpdate):
     db_author = db.query(models.Author).filter(models.Author.id == author_id).first()
     if db_author:
-        if first_name: db_author.first_name = first_name
-        if last_name: db_author.last_name = last_name
-        if bio is not None: db_author.bio = bio
+        # Hier sorgt 'exclude_unset=True' dafür, dass nur die Felder im JSON
+        # die Datenbank ändern. Fehlende Felder im JSON bleiben in der DB unberührt.
+        update_data = author_update.model_dump(exclude_unset=True) 
+        
+        for key, value in update_data.items():
+            setattr(db_author, key, value)
+            
         db.commit()
         db.refresh(db_author)
     return db_author
@@ -110,18 +114,20 @@ def get_author_links(db: Session, author_id: int):
         .where(models.AuthorLink.author_id == author_id))
     return result.unique().scalars().all()
 
-def update_author_link(db: Session, link_id: int, url: str = None, link_type_id: int = None, label: str = None):
+def update_author_link(db: Session, link_id: int, link_data: schemas.AuthorLinkUpdate):
     db_link = db.query(models.AuthorLink).options(
         joinedload(models.AuthorLink.link_type)
-    ).filter(models.AuthorLink.id == link_id).unique().first()
+    ).filter(models.AuthorLink.id == link_id).first()
     
     if db_link:
-        if url: db_link.url = url
-        if label is not None: db_link.label = label
-        if link_type_id: db_link.link_type_id = link_type_id
+        update_data = link_data.model_dump(exclude_unset=True)
+        
+        for key, value in update_data.items():
+            setattr(db_link, key, value)
             
         db.commit()
         db.refresh(db_link)
+        
     return db_link
 
 def delete_author_link(db: Session, link_id: int):
