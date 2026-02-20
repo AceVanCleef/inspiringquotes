@@ -65,8 +65,13 @@ export async function getAuthors() {
 
 export async function getAuthor(id: string) {
   const response = await fetch(`${BASE_URL}/authors/${id}`)
+  if (response.status === 404) {
+    // Ein 404 ist kein "Systemfehler", sondern eine klare Info: Nicht da.
+    return null; 
+  }
+
   if (!response.ok) {
-    throw new Error('Error while fetching authors with ID ${id}')
+    throw new Error('Error while fetching authors with ID ${id}: ${response.statusText}')
   }
   return response.json()
 }
