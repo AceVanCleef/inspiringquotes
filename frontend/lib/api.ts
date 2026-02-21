@@ -1,8 +1,9 @@
+import { Author } from "@/types/author";
 import { Quote } from "@/types/quote";
 
 const BASE_URL = "http://127.0.0.1:8000"
 
-export async function getQuotes() {
+export async function getQuotes(): Promise<Quote[]> {
   const response = await fetch(`${BASE_URL}/quotes/`)
   if (!response.ok) {
     throw new Error('Error while fetching quotes')
@@ -21,7 +22,7 @@ export async function getQuote(quoteId: number): Promise<Quote> {
   return response.json(); 
 }
 
-export async function getDailyQuote() {
+export async function getDailyQuote(): Promise<Quote> {
   const response = await fetch(`${BASE_URL}/quotes/daily/`)
   if (!response.ok) {
     throw new Error('Error while fetching quote of the day')
@@ -29,7 +30,7 @@ export async function getDailyQuote() {
   return response.json()
 }
 
-export async function getPopularQuotes() {
+export async function getPopularQuotes(): Promise<Quote[]> {
   const response = await fetch(`${BASE_URL}/quotes/popular/`)
   if (!response.ok) {
     throw new Error('Error while fetching quote of the day')
@@ -37,7 +38,7 @@ export async function getPopularQuotes() {
   return response.json()
 }
 
-export async function getRecentQuotes() {
+export async function getRecentQuotes(): Promise<Quote[]> {
   const response = await fetch(`${BASE_URL}/quotes/recent/`)
   if (!response.ok) {
     throw new Error('Error while fetching quote of the day')
@@ -55,7 +56,7 @@ export async function decrementLike(quoteId: number) {
   return response.json();
 }
 
-export async function getAuthors() {
+export async function getAuthors(): Promise<Author[]> {
   const response = await fetch(`${BASE_URL}/authors/`)
   if (!response.ok) {
     throw new Error('Error while fetching authors')
@@ -63,7 +64,7 @@ export async function getAuthors() {
   return response.json()
 }
 
-export async function getAuthor(id: string) {
+export async function getAuthor(id: string): Promise<Author | null> {
   const response = await fetch(`${BASE_URL}/authors/${id}`)
   if (response.status === 404) {
     // Ein 404 ist kein "Systemfehler", sondern eine klare Info: Nicht da.
@@ -76,7 +77,7 @@ export async function getAuthor(id: string) {
   return response.json()
 }
 
-export async function getAuthorQuotes(author_id: string) {
+export async function getAuthorQuotes(author_id: string): Promise<Quote[]> {
   const response = await fetch(`${BASE_URL}/authors/${author_id}/quotes`)
   if (!response.ok) {
     throw new Error('Error while fetching authors with ID ${id}')

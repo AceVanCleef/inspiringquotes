@@ -17,8 +17,7 @@ export default async function AuthorProfilePage({
       getAuthor(id),
       getAuthorQuotes(id)
   ]);
-    console.log('author id:', author.id, ' typeof ', typeof author.id);
-  console.log('author:', author, ' typeof ', typeof author);
+
   if (!author) {
     return (
       <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">

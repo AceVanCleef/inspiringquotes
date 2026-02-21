@@ -15,7 +15,7 @@ class LinkType(LinkTypeBase):
 # --- LINK DTOs ---
 DEFAULT_LINK_TYPE = {"id": 1, "name": "Website"}
 class AuthorLinkBase(BaseModel):
-    url: HttpUrl # Später kannst du HttpUrl nutzen für striktere Checks
+    url: HttpUrl
     label: Optional[str] = None
 
 class AuthorLinkCreate(AuthorLinkBase):
