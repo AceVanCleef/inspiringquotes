@@ -1,7 +1,9 @@
 from typing import List, Optional
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base # Das ist die Base mit (DeclarativeBase), die wir gerade besprochen haben
+
+### Database models ###
 
 class Author(Base):
     __tablename__ = "authors"
@@ -10,11 +12,14 @@ class Author(Base):
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(50))
     bio: Mapped[Optional[str]] = mapped_column(String(500))
-    profile_image_path: Mapped[Optional[str]] = mapped_column(String(255))
+    profile_image_path: Mapped[Optional[str]] = mapped_column(
+        String(255), 
+    #    CheckConstraint("profile_image_path LIKE 'http%' OR profile_image_path LIKE '/%'"),
+        nullable=True
+    )
     
     # An author can have multiple links
     links: Mapped[List["AuthorLink"]] = relationship(
-        back_populates="author",
         cascade="all, delete-orphan"
     )
     
@@ -32,7 +37,6 @@ class AuthorLink(Base):
     link_type: Mapped["LinkType"] = relationship(back_populates="links")
     
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
-    author: Mapped["Author"] = relationship(back_populates="links")
 
 class LinkType(Base):
     __tablename__ = "link_types"

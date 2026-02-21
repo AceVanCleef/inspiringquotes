@@ -1,6 +1,8 @@
 from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
 
+### API DTO Definitions ###
+
 # --- Link Type DTO ---
 class LinkTypeBase(BaseModel):
     name: str
@@ -13,7 +15,7 @@ class LinkType(LinkTypeBase):
 # --- LINK DTOs ---
 DEFAULT_LINK_TYPE = {"id": 1, "name": "Website"}
 class AuthorLinkBase(BaseModel):
-    url: str # Später kannst du HttpUrl nutzen für striktere Checks
+    url: HttpUrl # Später kannst du HttpUrl nutzen für striktere Checks
     label: Optional[str] = None
 
 class AuthorLinkCreate(AuthorLinkBase):
@@ -21,7 +23,7 @@ class AuthorLinkCreate(AuthorLinkBase):
     link_type_id: int
     
 class AuthorLinkUpdate(BaseModel):
-    url: Optional[str] = None
+    url: Optional[HttpUrl] = None
     label: Optional[str] = None
     link_type_id: Optional[int] = None
     author_id: Optional[int] = None
@@ -42,7 +44,7 @@ class AuthorBase(BaseModel):
     first_name: str
     last_name: str
     bio: Optional[str] = None
-    profile_image_path: Optional[str] = None
+    profile_image_path: Optional[HttpUrl] = None
 
 class AuthorCreate(AuthorBase):
     pass
@@ -52,7 +54,7 @@ class AuthorUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     bio: Optional[str] = None
-    profile_image_path: Optional[str] = None
+    profile_image_path: Optional[HttpUrl] = None
 
     class Config:
         from_attributes = True

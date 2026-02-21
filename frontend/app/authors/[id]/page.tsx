@@ -17,7 +17,8 @@ export default async function AuthorProfilePage({
       getAuthor(id),
       getAuthorQuotes(id)
   ]);
-
+    console.log('author id:', author.id, ' typeof ', typeof author.id);
+  console.log('author:', author, ' typeof ', typeof author);
   if (!author) {
     return (
       <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
@@ -59,6 +60,10 @@ export default async function AuthorProfilePage({
             {author.bio}
           </p>
           <p className="text-slate-500 mt-2">{quotes?.length} Quotes of this author</p>
+
+          <div>
+            test: {author.links?.length ?? "no links found"}
+          </div>
         </header>
 
         <QuotesListView initialQuotes={quotes} authors={[author]} />
