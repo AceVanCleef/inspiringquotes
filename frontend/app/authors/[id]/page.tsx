@@ -1,5 +1,6 @@
 import AuthorAvatar from "@/components/ui/atom/AuthorAvatar";
 import { Button } from "@/components/ui/button";
+import { LinkWidget } from "@/components/ui/molecule/LinkWidget";
 import QuotesListView from "@/components/ui/organisms/QuotesListView";
 import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
@@ -59,10 +60,7 @@ export default async function AuthorProfilePage({
             {author.bio}
           </p>
           <p className="text-slate-500 mt-2">{quotes?.length} Quotes of this author</p>
-
-          <div>
-            test: {author.links?.length ?? "no links found"}
-          </div>
+          <LinkWidget links={author.links} />
         </header>
 
         <QuotesListView initialQuotes={quotes} authors={[author]} />
