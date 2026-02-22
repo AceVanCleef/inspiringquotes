@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Check, Heart, Share2 } from "lucide-react"
+import { Check, DownloadIcon, Heart, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -17,6 +17,8 @@ import { incrementLike, decrementLike } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { Author } from "@/types/author"
 import Link from "next/link"
+import QuoteDownloadDialog from "../organisms/QuoteDownloadDialog"
+import QuoteExportCard from "./QuoteExportCard"
 
 
 interface QuoteCardProps {
@@ -103,7 +105,7 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
           </Link>
         </p>
       </CardContent>
-      <CardFooter className="flex flew-row gap-2">
+      <CardFooter className="flex flew-row gap-2 flex-wrap">
         <Button 
         onClick={toggleLike}
         variant="outline"
@@ -131,6 +133,20 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
           </>
         )}
         </Button>
+        
+        <QuoteDownloadDialog 
+          className="max-h-[95vh] flex flex-col" 
+          trigger={
+          <Button 
+          variant="outline"
+          className="h-9 px-2 text-slate-400 hover:text-rose-500 transition-colors"
+          >
+            <DownloadIcon />
+            <span>Download as PNG</span>
+          </Button>
+        }>
+          <QuoteExportCard text={text} author={author}/>
+        </QuoteDownloadDialog>
       </CardFooter>
     </Card>
   )

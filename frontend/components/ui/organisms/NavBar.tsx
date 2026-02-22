@@ -3,6 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import GenericSheet from "../molecule/GenericSheet"
+import { Button } from "../button"
+import { Menu } from "lucide-react"
+import { SheetClose } from "../sheet"
+import { MobileNavLink } from "../atom/MobileNavLink"
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -24,8 +29,31 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Navigationspunkte */}
-        <div className="flex gap-8">
+        {/* Mobile Navigation */}
+      <GenericSheet
+        side="left"
+        trigger={
+          <Button variant="ghost" size="icon" className="md:hidden">
+            <Menu className="h-6 w-6" />
+          </Button>
+        }
+        title="Navigation"
+      >
+        <div className="flex flex-col gap-4 mt-4 px-4">
+          <MobileNavLink href={"/"}>
+            Home
+          </MobileNavLink>
+          <MobileNavLink href={"/quotes"}>
+            Quotes
+          </MobileNavLink>
+          <MobileNavLink href={"/authors"}>
+            Authors
+          </MobileNavLink>
+        </div>
+      </GenericSheet>
+
+      {/* Desktop Navigation */}
+        <div className="hidden md:flex gap-8">
           {navItems.map((item) => (
             <Link
               key={item.href}
