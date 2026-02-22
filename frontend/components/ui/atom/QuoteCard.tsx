@@ -105,7 +105,7 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
           </Link>
         </p>
       </CardContent>
-      <CardFooter className="flex flew-row gap-2">
+      <CardFooter className="flex flew-row gap-2 flex-wrap">
         <Button 
         onClick={toggleLike}
         variant="outline"
