@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -12,18 +14,27 @@ from datetime import date
 # if they do not already exist.
 models.Base.metadata.create_all(bind=engine)
 
+load_dotenv()
+
 app = FastAPI(
     title="Inspiring Quotes API",
     description="Backend für deine Zitate-App – Fokus: Genuine Non-Neediness"
 )
 
 # CORS configuration
+raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+env_origins = [origin.strip() for origin in raw_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Any source is permitted for development. Todo: needs to change in production env
+    allow_origins=env_origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allows GET, POST, etc.
-    allow_headers=["*"], # Allows all Header
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Content-Type", # JSON
+        "Authorization", # Tokens
+        "Accept" # regular traffic
+    ],
 )
 
 # Retrieves a list of authors from the database.

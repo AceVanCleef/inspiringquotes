@@ -1,7 +1,8 @@
 import { Author } from "@/types/author";
 import { Quote } from "@/types/quote";
+import { ENV } from "@/config/env";
 
-const BASE_URL = "http://127.0.0.1:8000"
+const BASE_URL = ENV.API_URL;
 
 export async function getQuotes(): Promise<Quote[]> {
   const response = await fetch(`${BASE_URL}/quotes/`)
