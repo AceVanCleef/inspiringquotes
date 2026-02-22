@@ -42,7 +42,7 @@ export default function GenericDialog({
         </DialogHeader>
         
         <div className="w-full flex items-center justify-center overflow-hidden py-4">
-            <div className="scale-100 md:scale-[0.9] lg:scale-[100] origin-center transition-transform">
+            <div className="scale-100 md:scale-[0.9] lg:scale-[0.8] origin-center transition-transform">
                 {children}
             </div>
         </div>
