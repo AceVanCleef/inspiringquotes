@@ -1,7 +1,7 @@
 "use client"
 
 import { ReactNode } from "react"
-import GenericDialog from "../molecule/Dialog"
+import GenericDialog from "../molecule/GenericDialog"
 
 interface QuoteDownloadDialogProps {
     trigger: ReactNode;

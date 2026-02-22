@@ -3,9 +3,10 @@ import { Author } from "@/types/author"
 
 interface AuthorAvatarProps {
     author: Author,
+    className?: string,
 }
 
-export default function AuthorAvatar({ author } : AuthorAvatarProps) {
+export default function AuthorAvatar({ author, className = "" } : AuthorAvatarProps) {
   const isValidPath = 
     author.profile_image_path && 
     author.profile_image_path !== "string" && 
@@ -13,7 +14,7 @@ export default function AuthorAvatar({ author } : AuthorAvatarProps) {
 
 
   return (
-    <Avatar size="lg">
+    <Avatar className={className} size="lg">
       {isValidPath && (
         <AvatarImage
           src={author.profile_image_path}
