@@ -81,7 +81,7 @@ export default async function AuthorProfilePage({
         </header>
 
         {/* Content Grid: Bio & Links vs. Quotes */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-10 border-t border-slate-100">
+        <div className="grid grid-cols-1 gap-12 pt-10 border-t border-slate-100">
           
           {/* Seitenspalte: Die "Substanz" */}
           <aside className="lg:col-span-4 space-y-8">
