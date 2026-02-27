@@ -40,15 +40,11 @@ export default function Navbar() {
         title="Navigation"
       >
         <div className="flex flex-col gap-4 mt-4 px-4">
-          <MobileNavLink href={"/"}>
-            Home
-          </MobileNavLink>
-          <MobileNavLink href={"/quotes"}>
-            Quotes
-          </MobileNavLink>
-          <MobileNavLink href={"/authors"}>
-            Authors
-          </MobileNavLink>
+          {navItems.map((item) => (
+            <MobileNavLink href={item.href}>
+              {item.name}
+            </MobileNavLink>
+          ))}
         </div>
       </GenericSheet>
 

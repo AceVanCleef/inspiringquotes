@@ -62,6 +62,7 @@ class AuthorUpdate(BaseModel):
 class Author(AuthorBase):
     id: int
     links: Optional[List[AuthorLink]] = []
+    quote_count: int = 0
 
     class Config:
         from_attributes = True

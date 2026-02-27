@@ -25,6 +25,10 @@ class Author(Base):
     
     # The relationship to the quotes
     quotes: Mapped[List["Quote"]] = relationship(back_populates="author")
+    
+    @property
+    def quote_count(self) -> int:
+        return len(self.quotes)
 
 class AuthorLink(Base):
     __tablename__ = "author_links"

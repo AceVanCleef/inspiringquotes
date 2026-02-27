@@ -17,7 +17,9 @@ def get_authors(db: Session, skip: int = 0, limit: int = 100):
     Retrieves a list of authors from the database.
     'skip' and 'limit' allow us to paging later (e.g., page 1, 2, 3).
     """
-    result = db.execute(select(models.Author).offset(skip).limit(limit))
+    result = db.execute(select(models.Author)
+                        .options(joinedload(models.Author.quotes))
+                        .offset(skip).limit(limit)).unique()
     return result.scalars().all()
 
 def create_author(db: Session, author: schemas.AuthorCreate):
