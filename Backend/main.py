@@ -28,7 +28,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS configuration
 raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-env_origins = [origin.strip() for origin in raw_origins.split(",")]
+env_origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
@@ -93,6 +93,11 @@ def delete_existing_link(request: Request, link_id: int, db: Session = Depends(g
     if not crud.delete_author_link(db, link_id=link_id):
         raise HTTPException(status_code=404, detail="Link nicht gefunden")
     return {"message": "Link wurde gelöscht"}
+
+@app.get("/linktypes", response_model=List[schemas.LinkType], tags=["Link types"])
+@limiter.limit("60/min")
+def read_link_types(request: Request, db: Session = Depends(get_db)):
+    return crud.get_link_types(db)
 
 @app.put("/authors/{author_id}", response_model=schemas.Author, tags=["Authors"])
 @limiter.limit("15/minute")

@@ -144,3 +144,8 @@ def delete_author_link(db: Session, link_id: int):
         db.commit()
         return True
     return False
+
+
+def get_link_types(db: Session):
+    result = db.execute(select(models.LinkType))
+    return result.scalars().all()
