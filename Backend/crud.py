@@ -34,13 +34,18 @@ def update_author(db: Session, author_id: int, author_update: schemas.AuthorUpda
     if db_author:
         # Hier sorgt 'exclude_unset=True' dafür, dass nur die Felder im JSON
         # die Datenbank ändern. Fehlende Felder im JSON bleiben in der DB unberührt.
-        update_data = author_update.model_dump(exclude_unset=True) 
+        update_data = author_update.model_dump(exclude_unset=True, mode="json") 
         
         for key, value in update_data.items():
             setattr(db_author, key, value)
             
-        db.commit()
-        db.refresh(db_author)
+        try:
+            db.commit()
+            db.refresh(db_author)
+        except Exception as e:
+            db.rollback()
+            print(f"Database error: {e}")
+            raise e
     return db_author
 
 def delete_author(db: Session, author_id: int):
