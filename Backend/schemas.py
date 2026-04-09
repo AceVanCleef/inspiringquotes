@@ -23,6 +23,7 @@ class AuthorLinkCreate(AuthorLinkBase):
     link_type_id: int
     
 class AuthorLinkUpdate(BaseModel):
+    id: Optional[int] = None
     url: Optional[HttpUrl] = None
     label: Optional[str] = None
     link_type_id: Optional[int] = None
@@ -55,6 +56,7 @@ class AuthorUpdate(BaseModel):
     last_name: Optional[str] = None
     bio: Optional[str] = None
     profile_image_path: Optional[HttpUrl] = None
+    links: Optional[List[AuthorLinkUpdate]] = None
 
     class Config:
         from_attributes = True

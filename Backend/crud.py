@@ -34,11 +34,37 @@ def update_author(db: Session, author_id: int, author_update: schemas.AuthorUpda
     if db_author:
         # Hier sorgt 'exclude_unset=True' dafür, dass nur die Felder im JSON
         # die Datenbank ändern. Fehlende Felder im JSON bleiben in der DB unberührt.
-        update_data = author_update.model_dump(exclude_unset=True, mode="json") 
+        update_data = author_update.model_dump(exclude_unset=True, exclude={"links"}, mode="json") 
         
         for key, value in update_data.items():
             setattr(db_author, key, value)
+        
+        # reconsile links
+        if author_update.links is not None:
+            existing_links = {link.id: link for link in db_author.links}
+            incoming_links = author_update.links
             
+            # delete links that are no longer needed
+            incoming_ids = {l.id for l in incoming_links if l.id is not None}
+            for link_id in list(existing_links.keys()):
+                if link_id not in incoming_ids:
+                    db.delete(existing_links[link_id])
+            
+            # create and update links
+            for link_data in incoming_links:
+                if link_data.id and link_data.id in existing_links:
+                    # Update
+                    target_link = existing_links[link_data.id]
+                    for key, value in link_data.model_dump(exclude_unset=True).items():
+                        setattr(target_link, key, value)
+                else:
+                    # Create
+                    new_link = models.AuthorLink(
+                        **link_data.model_dump(exclude={"id", "author_id"}, mode="json"), 
+                        author_id=db_author.id
+                    )
+                    db.add(new_link)
+        
         try:
             db.commit()
             db.refresh(db_author)
