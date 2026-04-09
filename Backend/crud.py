@@ -123,59 +123,12 @@ def delete_quotes_by_author(db: Session, author_id: int):
     db.commit()
     return result
 
-def create_author_link(db: Session, link: schemas.AuthorLinkCreate, author_id: int):
-    # 1. Daten aus dem Schema holen und die author_id aus der URL sicherstellen
-    link_data = link.model_dump()
-    link_data["author_id"] = author_id
-    
-    # 2. Modell-Instanz erstellen
-    db_link = models.AuthorLink(**link_data)
-    
-    # 3. In die Datenbank schreiben
-    db.add(db_link)
-    db.commit()
-    # Wir brauchen kein einfaches refresh(), da wir unten eine frische Query mit Join machen
-    
-    # 4. Den Link mit seinem verknüpften Typ neu laden
-    # Das stellt sicher, dass 'link_type' für das Pydantic-Schema verfügbar ist
-    return (
-        db.query(models.AuthorLink)
-        .options(joinedload(models.AuthorLink.link_type))
-        .filter(models.AuthorLink.id == db_link.id)
-        .first()
-    )
-    
 def get_author_links(db: Session, author_id: int):
     result = db.execute(
         select(models.AuthorLink)
         .options(joinedload(models.AuthorLink.link_type))
         .where(models.AuthorLink.author_id == author_id))
     return result.unique().scalars().all()
-
-def update_author_link(db: Session, link_id: int, link_data: schemas.AuthorLinkUpdate):
-    db_link = db.query(models.AuthorLink).options(
-        joinedload(models.AuthorLink.link_type)
-    ).filter(models.AuthorLink.id == link_id).first()
-    
-    if db_link:
-        update_data = link_data.model_dump(exclude_unset=True)
-        
-        for key, value in update_data.items():
-            setattr(db_link, key, value)
-            
-        db.commit()
-        db.refresh(db_link)
-        
-    return db_link
-
-def delete_author_link(db: Session, link_id: int):
-    db_link = db.query(models.AuthorLink).filter(models.AuthorLink.id == link_id).first()
-    if db_link:
-        db.delete(db_link)
-        db.commit()
-        return True
-    return False
-
 
 def get_link_types(db: Session):
     result = db.execute(select(models.LinkType))

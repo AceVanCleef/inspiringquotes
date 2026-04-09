@@ -73,28 +73,6 @@ def read_author(request: Request, author_id: int, db: Session = Depends(get_db))
     return db_author
 
 # Links end points
-
-# @app.post("/authors/{author_id}/links/", response_model=schemas.AuthorLink, tags=["Links"])
-# @limiter.limit("15/minute")
-# def create_link_for_author(request: Request, author_id: int, link: schemas.AuthorLinkCreate, db: Session = Depends(get_db)):
-#     """Adds a new link (e.g., Instagram) to an existing author."""
-#     return crud.create_author_link(db=db, link=link, author_id=author_id)
-
-# @app.put("/links/{link_id}", response_model=schemas.AuthorLink, tags=["Links"])
-# @limiter.limit("15/minute")
-# def update_existing_link(request: Request, link_id: int, link_data: schemas.AuthorLinkUpdate, db: Session = Depends(get_db)):
-#     updated = crud.update_author_link(db, link_id=link_id, link_data=link_data)
-#     if not updated:
-#         raise HTTPException(status_code=404, detail="Link nicht gefunden")
-#     return updated
-
-# @app.delete("/links/{link_id}", tags=["Links"])
-# @limiter.limit("15/minute")
-# def delete_existing_link(request: Request, link_id: int, db: Session = Depends(get_db)):
-#     if not crud.delete_author_link(db, link_id=link_id):
-#         raise HTTPException(status_code=404, detail="Link nicht gefunden")
-#     return {"message": "Link wurde gelöscht"}
-
 @app.get("/linktypes", response_model=List[schemas.LinkType], tags=["Link types"])
 @limiter.limit("60/min")
 def read_link_types(request: Request, db: Session = Depends(get_db)):
