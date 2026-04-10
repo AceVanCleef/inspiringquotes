@@ -23,8 +23,18 @@ def get_authors(db: Session, skip: int = 0, limit: int = 100):
     return result.scalars().all()
 
 def create_author(db: Session, author: schemas.AuthorCreate):
-    db_author = models.Author(**author.model_dump())
+    links_data = author.links if hasattr(author, 'links') else []
+    db_author = models.Author(**author.model_dump(exclude={'links'}, mode="json"))
     db.add(db_author)
+    db.flush()
+    
+    for link_data in links_data:
+        db_link = models.AuthorLink(
+            **link_data.model_dump(mode="json", exclude={"id", "author_id"}),
+            author_id=db_author.id
+        )
+        db.add(db_link)
+        
     db.commit()
     db.refresh(db_author)
     return db_author
@@ -55,7 +65,7 @@ def update_author(db: Session, author_id: int, author_update: schemas.AuthorUpda
                 if link_data.id and link_data.id in existing_links:
                     # Update
                     target_link = existing_links[link_data.id]
-                    for key, value in link_data.model_dump(exclude_unset=True).items():
+                    for key, value in link_data.model_dump(exclude_unset=True, mode="json").items():
                         setattr(target_link, key, value)
                 else:
                     # Create

@@ -48,7 +48,7 @@ class AuthorBase(BaseModel):
     profile_image_path: Optional[HttpUrl] = None
 
 class AuthorCreate(AuthorBase):
-    pass
+    links: Optional[List[AuthorLinkUpdate]] = []
 
 class AuthorUpdate(BaseModel):
     # Alle Felder sind hier Optional, damit man auch nur Teil-Updates machen kann
