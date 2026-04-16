@@ -75,12 +75,16 @@ class QuoteBase(BaseModel):
     likes: int = 0
 
 class QuoteCreate(QuoteBase):
-    pass
+    text: str
+    author_id: int
 
 class Quote(QuoteBase):
     id: int
-    author_id: int
     author: Author # Hier passiert die Verschachtelung, die du wolltest!
 
     class Config:
         from_attributes = True
+        
+class QuoteUpdate(BaseModel):
+    text: Optional[str] = None
+    author_id: Optional[int] = None

@@ -98,9 +98,12 @@ def delete_existing_author(request: Request, author_id: int, db: Session = Depen
 
 @app.post("/quotes/", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("15/minute")
-def create_quote(request: Request, quote: schemas.QuoteCreate, author_id: int, db: Session = Depends(get_db)):
+def create_quote(request: Request, quote: schemas.QuoteCreate, db: Session = Depends(get_db)):
     """Saves a new quote and links it to an author ID."""
-    return crud.create_quote(db=db, quote=quote, author_id=author_id)
+    db_quote = crud.create_quote(db=db, quote=quote)
+    if not db_quote:
+        raise HTTPException(status_code=404, detail="Author not found. Quote can't be created.")
+    return db_quote
 
 @app.get("/quotes/", response_model=List[schemas.Quote], tags=["Quotes"])
 @limiter.limit("60/minute")
@@ -118,8 +121,8 @@ def read_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
 
 @app.put("/quotes/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("15/minute")
-def update_existing_quote(request: Request, quote_id: int, text: str, db: Session = Depends(get_db)):
-    updated_quote = crud.update_quote(db, quote_id=quote_id, text=text)
+def update_existing_quote(request: Request, quote_id: int, quote: schemas.QuoteUpdate, db: Session = Depends(get_db)):
+    updated_quote = crud.update_quote(db, quote_id=quote_id, quote=quote)
     if not updated_quote:
         raise HTTPException(status_code=404, detail="Zitat nicht gefunden")
     return updated_quote

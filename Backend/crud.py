@@ -105,19 +105,32 @@ def get_quotes_by_author(db: Session, author_id: int):
 def get_quote(db: Session, quote_id: int):
     return db.query(models.Quote).filter(models.Quote.id == quote_id).first()
 
-def create_quote(db: Session, quote: schemas.QuoteCreate, author_id: int):
-    db_quote = models.Quote(**quote.model_dump(), author_id=author_id)
+def create_quote(db: Session, quote: schemas.QuoteCreate):
+    author_exists = db.query(models.Author).filter(models.Author.id == quote.author_id).first()
+    if not author_exists:
+        return None
+    
+    db_quote = models.Quote(**quote.model_dump())
     db.add(db_quote)
     db.commit()
     db.refresh(db_quote)
     return db_quote
 
-def update_quote(db: Session, quote_id: int, text: str):
+def update_quote(db: Session, quote_id: int, quote: schemas.QuoteUpdate):
     db_quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
-    if db_quote:
-        db_quote.text = text
-        db.commit()
-        db.refresh(db_quote)
+    
+    if not db_quote:
+        return None
+    
+    update_data = quote.model_dump(exclude_unset=True)
+    
+    for key, value in update_data.items():
+        # Da dein QuoteUpdate 'author_id' enthält und dein Model auch 'author_id' hat,
+        # mappt das hier direkt. SQLAlchemy kümmert sich um die Beziehung.
+        setattr(db_quote, key, value)
+    
+    db.commit()
+    db.refresh(db_quote) # Lädt auch das verschachtelte Author-Objekt für das response_model nach
     return db_quote
 
 def delete_quote(db: Session, quote_id: int):
