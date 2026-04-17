@@ -9,7 +9,6 @@ async function handler(request: NextRequest): Promise<NextResponse> {
 
   // Check API_URL
   const apiUrl = ENV.API_URL;
-  console.log("api url: ", apiUrl);
   if (!apiUrl) {
     return NextResponse.json(
       { error: "API_URL environment variable is not set" },
@@ -21,8 +20,8 @@ async function handler(request: NextRequest): Promise<NextResponse> {
   if (endpoint) {
     const headers: any = {
       "Content-Type": "application/json",
+      "X-Internal-Secret": ENV.API_KEY,
     };
-
     // Parse request body
     let body = undefined;
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -44,7 +43,6 @@ async function handler(request: NextRequest): Promise<NextResponse> {
         validateStatus: () => true, // Accept all status codes
       });
 
-      console.log("response: ", "I am alive!");
       return NextResponse.json(response.data, { status: response.status });
     } catch (e) {
       const axiosError = e as AxiosError;
