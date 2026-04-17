@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 import models, schemas, crud
+from access_security import require_admin_key, require_any_key
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 import random
@@ -21,7 +22,7 @@ load_dotenv()
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Inspiring Quotes API",
-    description="A curated collection of inspiring quotes - collected by a Swiss Expert in personal developtment."
+    description="A curated collection of inspiring quotes - collected by a Swiss Expert in personal developtment.",
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -53,19 +54,35 @@ def get_db():
 
 @app.post("/authors/", response_model=schemas.Author, tags=["Authors"])
 @limiter.limit("15/minute")
-def create_author(request: Request, author: schemas.AuthorCreate, db: Session = Depends(get_db)):
+def create_author(
+    request: Request, 
+    author: schemas.AuthorCreate, 
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     """Creates a new author in the database."""
     return crud.create_author(db=db, author=author)
 
 @app.get("/authors/", response_model=List[schemas.Author], tags=["Authors"])
 @limiter.limit("60/minute")
-def read_authors(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_authors(
+    request: Request, 
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     """Returns a list of all authors including their links."""
     return crud.get_authors(db, skip=skip, limit=limit)
 
 @app.get("/authors/{author_id}", response_model=schemas.Author, tags=["Authors"])
 @limiter.limit("60/minute")
-def read_author(request: Request, author_id: int, db: Session = Depends(get_db)):
+def read_author(
+    request: Request,
+    author_id: int, 
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     """Search for a specific author using their ID."""
     db_author = crud.get_author(db, author_id=author_id)
     if db_author is None:
@@ -75,15 +92,22 @@ def read_author(request: Request, author_id: int, db: Session = Depends(get_db))
 # Links end points
 @app.get("/linktypes", response_model=List[schemas.LinkType], tags=["Link types"])
 @limiter.limit("60/min")
-def read_link_types(request: Request, db: Session = Depends(get_db)):
+def read_link_types(
+    request: Request,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     return crud.get_link_types(db)
 
 @app.put("/authors/{author_id}", response_model=schemas.Author, tags=["Authors"])
 @limiter.limit("15/minute")
-def update_existing_author(request: Request, author_id: int, author_data: schemas.AuthorUpdate, db: Session = Depends(get_db)):
-    print("\n" + "="*30)
-    print("update existing author", author_id, author_data)
-    print("="*30 + "\n")
+def update_existing_author(
+    request: Request,
+    author_id: int,
+    author_data: schemas.AuthorUpdate,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     updated = crud.update_author(db, author_id=author_id, author_update=author_data)
     if not updated:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -91,14 +115,24 @@ def update_existing_author(request: Request, author_id: int, author_data: schema
 
 @app.delete("/authors/{author_id}", tags=["Authors"])
 @limiter.limit("15/minute")
-def delete_existing_author(request: Request, author_id: int, db: Session = Depends(get_db)):
+def delete_existing_author(
+    request: Request,
+    author_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     if not crud.delete_author(db, author_id=author_id):
         raise HTTPException(status_code=404, detail="Author not found")
     return {"message": "The author and all associated data have been deleted."}
 
 @app.post("/quotes/", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("15/minute")
-def create_quote(request: Request, quote: schemas.QuoteCreate, db: Session = Depends(get_db)):
+def create_quote(
+    request: Request,
+    quote: schemas.QuoteCreate,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     """Saves a new quote and links it to an author ID."""
     db_quote = crud.create_quote(db=db, quote=quote)
     if not db_quote:
@@ -107,13 +141,24 @@ def create_quote(request: Request, quote: schemas.QuoteCreate, db: Session = Dep
 
 @app.get("/quotes/", response_model=List[schemas.Quote], tags=["Quotes"])
 @limiter.limit("60/minute")
-def read_quotes(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_quotes(
+    request: Request,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     """Returns all quotes (with nested author information)."""
     return crud.get_quotes(db, skip=skip, limit=limit)
 
 @app.get("/quote/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("60/minute")
-def read_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
+def read_quote(
+    request: Request,
+    quote_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     quote = crud.get_quote(db, quote_id=quote_id)
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
@@ -121,7 +166,13 @@ def read_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
 
 @app.put("/quotes/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("15/minute")
-def update_existing_quote(request: Request, quote_id: int, quote: schemas.QuoteUpdate, db: Session = Depends(get_db)):
+def update_existing_quote(
+    request: Request,
+    quote_id: int,
+    quote: schemas.QuoteUpdate,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     updated_quote = crud.update_quote(db, quote_id=quote_id, quote=quote)
     if not updated_quote:
         raise HTTPException(status_code=404, detail="Zitat nicht gefunden")
@@ -129,7 +180,12 @@ def update_existing_quote(request: Request, quote_id: int, quote: schemas.QuoteU
 
 @app.delete("/quotes/{quote_id}", tags=["Quotes"])
 @limiter.limit("15/minute")
-def delete_existing_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
+def delete_existing_quote(
+    request: Request,
+    quote_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     success = crud.delete_quote(db, quote_id=quote_id)
     if not success:
         raise HTTPException(status_code=404, detail="Quote not found")
@@ -138,14 +194,24 @@ def delete_existing_quote(request: Request, quote_id: int, db: Session = Depends
 
 @app.get("/authors/{author_id}/quotes", response_model=list[schemas.Quote], tags=["Quotes"])
 @limiter.limit("60/minute")
-def read_author_quotes(request: Request, author_id: int, db: Session = Depends(get_db)):
+def read_author_quotes(
+    request: Request,
+    author_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     quotes = crud.get_quotes_by_author(db, author_id=author_id)
     if not quotes:
         return []
     return quotes
 
 @app.delete("/authors/{author_id}/quotes", tags=["Quotes"])
-def delete_all_author_quotes(request: Request, author_id: int, db: Session = Depends(get_db)):
+def delete_all_author_quotes(
+    request: Request,
+    author_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_admin_key)
+):
     author = crud.get_author(db, author_id=author_id)
     if not author:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -156,7 +222,11 @@ def delete_all_author_quotes(request: Request, author_id: int, db: Session = Dep
 # Quote of the Day (Seed based on the date)
 @app.get("/quotes/daily", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("60/minute")
-def get_daily_quote(request: Request, db: Session = Depends(get_db)):
+def get_daily_quote(
+    request: Request,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     quotes = db.query(models.Quote).all()
     if not quotes:
         raise HTTPException(status_code=404, detail="No quotes found")
@@ -168,19 +238,33 @@ def get_daily_quote(request: Request, db: Session = Depends(get_db)):
 # Popular Quotes
 @app.get("/quotes/popular", response_model=List[schemas.Quote], tags=["Quotes", "popular"])
 @limiter.limit("60/minute")
-def get_popular_quotes(request: Request, limit: int = 6, db: Session = Depends(get_db)):
+def get_popular_quotes(
+    request: Request,
+    limit: int = 6,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     return db.query(models.Quote).order_by(models.Quote.likes.desc()).limit(limit).all()
 
 # Recent Quotes (The newest date = highest ID)
 @app.get("/quotes/recent", response_model=List[schemas.Quote], tags=["Quotes", "recent"])
 @limiter.limit("60/minute")
-def get_recent_quotes(request: Request, limit: int = 6, db: Session = Depends(get_db)):
+def get_recent_quotes(
+    request: Request,
+    limit: int = 6,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     return db.query(models.Quote).order_by(models.Quote.id.desc()).limit(limit).all()
 
 # Like/ unlike ---------------
 @app.post("/quotes/{quote_id}/like", tags=["Quotes", "likes"])
 @limiter.limit("15/minute")
-def like_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
+def like_quote(
+    request: Request,
+    quote_id: int, db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
@@ -191,7 +275,12 @@ def like_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
 
 @app.post("/quotes/{quote_id}/unlike", tags=["Quotes", "likes"])
 @limiter.limit("15/minute")
-def unlike_quote(request: Request, quote_id: int, db: Session = Depends(get_db)):
+def unlike_quote(
+    request: Request,
+    quote_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(require_any_key)
+):
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
     if quote and quote.likes > 0:
         quote.likes -= 1
