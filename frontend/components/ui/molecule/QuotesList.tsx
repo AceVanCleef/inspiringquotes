@@ -28,13 +28,10 @@ export default function QuotesList({ quotes, type='single-column' }: QuotesListP
       type === 'single-column' && "space-y-4",
       type === 'grid' && "grid grid-cols-1 md:grid-cols-2 gap-8"
     )}>
-      {quotes?.map((quote: any) => (
+      {quotes?.map((quote: Quote) => (
         <QuoteCard 
           key={quote.id}
-          id={quote.id}
-          text={quote.text}
-          author={quote.author}
-          likes={quote.likes} 
+          quote={quote}
         />
       ))}
     </div>

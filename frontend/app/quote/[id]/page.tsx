@@ -17,10 +17,7 @@ export default async function QuotePreview({
         return (
             <div className="max-w-2xl mx-auto py-20">
                 <QuoteCard 
-                    id={quote.id}
-                    text={quote.text} 
-                    author={quote.author} 
-                    likes={quote.likes} />
+                    quote={quote} />
             </div>
         )
     } catch(error) {

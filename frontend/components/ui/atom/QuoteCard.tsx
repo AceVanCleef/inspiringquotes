@@ -19,34 +19,33 @@ import { Author } from "@/types/author"
 import Link from "next/link"
 import QuoteDownloadDialog from "../organisms/QuoteDownloadDialog"
 import QuoteExportCard from "./QuoteExportCard"
+import { Quote } from "@/types/quote"
 
 
 interface QuoteCardProps {
-  id: number;
-  text: string;
-  author: Author;
-  likes: number;
+  quote: Quote;
 }
 
-export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }: QuoteCardProps) {
+export default function QuoteCard({ quote }: QuoteCardProps) {
+  if (!quote) return (<div>No Quote found.</div>);
   const [isLiked, setIsLiked] = useState(false);
-  const [localLikes, setLocalLikes] = useState(initialLikes);
-  const authorName = `${author.first_name} ${author.last_name}`;
+  const [localLikes, setLocalLikes] = useState(0);
+  const authorName = `${quote?.author?.first_name ?? ""} ${quote?.author?.last_name ?? ""}`;
   const [urlCopied, setUrlCopied] = useState(false);
 
   useEffect(() => {
     const likedQuotes = JSON.parse(localStorage.getItem("liked_quotes") || "[]");
-    setIsLiked(likedQuotes.includes(id));
-  }, [id]);
+    setIsLiked(likedQuotes.includes(quote?.id));
+  }, [quote?.id]);
 
   useEffect(() => {
-    setLocalLikes(initialLikes);
-  }, [initialLikes]);
+    setLocalLikes(quote?.likes);
+  }, [quote?.likes]);
 
   // The Mutation (The API-Call)
   const mutation = useMutation({
   mutationFn: (shouldLike: boolean) => 
-    shouldLike ? incrementLike(id) : decrementLike(id),
+    shouldLike ? incrementLike(quote?.id) : decrementLike(quote?.id),
   });
 
   const toggleLike = () => {
@@ -59,10 +58,10 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
 
     // 1. LocalStorage & UI State sofort updaten
     if (nextLikedState) {
-      localStorage.setItem("liked_quotes", JSON.stringify([...likedQuotes, id]));
+      localStorage.setItem("liked_quotes", JSON.stringify([...likedQuotes, quote?.id]));
       setLocalLikes(prev => prev + 1);
     } else {
-      const updated = likedQuotes.filter((quoteId: number) => quoteId !== id);
+      const updated = likedQuotes.filter((quoteId: number) => quoteId !== quote?.id);
       localStorage.setItem("liked_quotes", JSON.stringify(updated));
       setLocalLikes(prev => prev - 1);
     }
@@ -75,7 +74,7 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
   };
 
   const handleCopyLink = async () => {
-    const shareUrl = `${window.location.origin}/quote/${id}`;
+    const shareUrl = `${window.location.origin}/quote/${quote?.id}`;
 
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -94,11 +93,11 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
   return (
     <Card>
       <CardContent>
-        <p className="text-lg italic text-slate-800">"{text}"</p>
+        <p className="text-lg italic text-slate-800">"{quote?.text}"</p>
         <p className="text-sm font-bold mt-2 text-slate-500 uppercase tracking-wider">
           <span>- </span>          
           <Link 
-            href={`/authors/${author.id}`} 
+            href={`/authors/${quote?.author?.id}`} 
             className="hover:text-rose-600 transition-colors cursor-pointer underline-offset-4 hover:underline"
           >
             {authorName}
@@ -145,7 +144,7 @@ export default function QuoteCard({ id, text, author, likes: initialLikes = 0 }:
             <span>Download as PNG</span>
           </Button>
         }>
-          <QuoteExportCard text={text} author={author}/>
+          <QuoteExportCard text={quote?.text} author={quote?.author}/>
         </QuoteDownloadDialog>
       </CardFooter>
     </Card>

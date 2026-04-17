@@ -16,10 +16,7 @@ export default async function Home() {
           Quote of the Day
         </h2>
         <QuoteCard 
-            id={dailyQuote.id}
-            text={dailyQuote.text}
-            author={dailyQuote.author}
-            likes={dailyQuote.likes} 
+            quote={dailyQuote}
         />
       </section>
 

@@ -41,7 +41,7 @@ export default function Navbar() {
       >
         <div className="flex flex-col gap-4 mt-4 px-4">
           {navItems.map((item) => (
-            <MobileNavLink href={item.href}>
+            <MobileNavLink key={item.href} href={item.href}>
               {item.name}
             </MobileNavLink>
           ))}
