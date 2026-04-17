@@ -2,7 +2,7 @@ import { Author } from "@/types/author";
 import { Quote } from "@/types/quote";
 import { ENV } from "@/config/env";
 
-const BASE_URL = ENV.API_URL;
+const BASE_URL = ENV.BFF_LAYER_URL; // rerouting http requests via Backend-for-Frontend layer
 
 export async function getQuotes(): Promise<Quote[]> {
   const response = await fetch(`${BASE_URL}/quotes/`)
