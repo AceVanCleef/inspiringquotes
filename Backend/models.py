@@ -1,5 +1,6 @@
+from datetime import date
 from typing import List, Optional
-from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, Date, ForeignKey, Integer, String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base # Das ist die Base mit (DeclarativeBase), die wir gerade besprochen haben
 
@@ -29,6 +30,10 @@ class Author(Base):
     @property
     def quote_count(self) -> int:
         return len(self.quotes)
+    
+    status_id: Mapped[int] = mapped_column(ForeignKey("author_statuses.id"), default=3)
+    subscription_expiry: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    internal_note: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
 class AuthorLink(Base):
     __tablename__ = "author_links"
@@ -60,3 +65,9 @@ class Quote(Base):
     
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
     author: Mapped["Author"] = relationship(back_populates="quotes")
+    
+class AuthorStatus(Base):
+    __tablename__ = "author_statuses"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)

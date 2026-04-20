@@ -1,3 +1,4 @@
+from datetime import date
 from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
 
@@ -49,6 +50,9 @@ class AuthorBase(BaseModel):
 
 class AuthorCreate(AuthorBase):
     links: Optional[List[AuthorLinkUpdate]] = []
+    status_id: Optional[int] = 3 # public_domain
+    subscription_expiry: Optional[date] = None
+    internal_note: Optional[str] = None
 
 class AuthorUpdate(BaseModel):
     # Alle Felder sind hier Optional, damit man auch nur Teil-Updates machen kann
@@ -60,6 +64,11 @@ class AuthorUpdate(BaseModel):
 
     class Config:
         from_attributes = True
+        
+    status_id: Optional[int] = None
+    subscription_expiry: Optional[date] = None
+    internal_note: Optional[str] = None
+
 
 class Author(AuthorBase):
     id: int
@@ -69,18 +78,26 @@ class Author(AuthorBase):
     class Config:
         from_attributes = True
 
+class AuthorAdminPanelDTO(Author):
+    status_id: int
+    subscription_expiry: Optional[date] = None
+    internal_note: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
 # --- QUOTE DTOs ---
 class QuoteBase(BaseModel):
     text: str
     likes: int = 0
 
 class QuoteCreate(QuoteBase):
-    text: str
+   # text: str
     author_id: int
 
 class Quote(QuoteBase):
     id: int
-    author: Author # Hier passiert die Verschachtelung, die du wolltest!
+    author: Author
 
     class Config:
         from_attributes = True

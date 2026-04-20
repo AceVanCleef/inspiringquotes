@@ -7,6 +7,7 @@ from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
+from enums.user_roles import UserRoles
 import models, schemas, crud
 from access_security import require_admin_key, require_any_key
 from database import SessionLocal, engine
@@ -58,22 +59,29 @@ def create_author(
     request: Request, 
     author: schemas.AuthorCreate, 
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     """Creates a new author in the database."""
     return crud.create_author(db=db, author=author)
 
-@app.get("/authors/", response_model=List[schemas.Author], tags=["Authors"])
+@app.get("/authors/", tags=["Authors"])
 @limiter.limit("60/minute")
 def read_authors(
     request: Request, 
     skip: int = 0, 
     limit: int = 100, 
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     """Returns a list of all authors including their links."""
-    return crud.get_authors(db, skip=skip, limit=limit)
+    is_admin = (api_key_role == UserRoles.ADMIN)
+    print("api key role: ", api_key_role, " is admin? ", is_admin)
+    authors = crud.get_authors(db, skip=skip, limit=limit, only_active=not is_admin)
+
+    if is_admin:
+        return [schemas.AuthorAdminPanelDTO.model_validate(a) for a in authors]
+    
+    return [schemas.Author.model_validate(a) for a in authors]
 
 @app.get("/authors/{author_id}", response_model=schemas.Author, tags=["Authors"])
 @limiter.limit("60/minute")
@@ -81,9 +89,9 @@ def read_author(
     request: Request,
     author_id: int, 
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
-    """Search for a specific author using their ID."""
+    """Search for a specific author using their ID."""   
     db_author = crud.get_author(db, author_id=author_id)
     if db_author is None:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -95,7 +103,7 @@ def read_author(
 def read_link_types(
     request: Request,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     return crud.get_link_types(db)
 
@@ -106,7 +114,7 @@ def update_existing_author(
     author_id: int,
     author_data: schemas.AuthorUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     updated = crud.update_author(db, author_id=author_id, author_update=author_data)
     if not updated:
@@ -119,7 +127,7 @@ def delete_existing_author(
     request: Request,
     author_id: int,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     if not crud.delete_author(db, author_id=author_id):
         raise HTTPException(status_code=404, detail="Author not found")
@@ -131,7 +139,7 @@ def create_quote(
     request: Request,
     quote: schemas.QuoteCreate,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     """Saves a new quote and links it to an author ID."""
     db_quote = crud.create_quote(db=db, quote=quote)
@@ -146,7 +154,7 @@ def read_quotes(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     """Returns all quotes (with nested author information)."""
     return crud.get_quotes(db, skip=skip, limit=limit)
@@ -157,7 +165,7 @@ def read_quote(
     request: Request,
     quote_id: int,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     quote = crud.get_quote(db, quote_id=quote_id)
     if not quote:
@@ -171,7 +179,7 @@ def update_existing_quote(
     quote_id: int,
     quote: schemas.QuoteUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     updated_quote = crud.update_quote(db, quote_id=quote_id, quote=quote)
     if not updated_quote:
@@ -184,7 +192,7 @@ def delete_existing_quote(
     request: Request,
     quote_id: int,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     success = crud.delete_quote(db, quote_id=quote_id)
     if not success:
@@ -198,7 +206,7 @@ def read_author_quotes(
     request: Request,
     author_id: int,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     quotes = crud.get_quotes_by_author(db, author_id=author_id)
     if not quotes:
@@ -210,7 +218,7 @@ def delete_all_author_quotes(
     request: Request,
     author_id: int,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_admin_key)
+    api_key_role: str = Depends(require_admin_key)
 ):
     author = crud.get_author(db, author_id=author_id)
     if not author:
@@ -225,7 +233,7 @@ def delete_all_author_quotes(
 def get_daily_quote(
     request: Request,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     quotes = db.query(models.Quote).all()
     if not quotes:
@@ -242,7 +250,7 @@ def get_popular_quotes(
     request: Request,
     limit: int = 6,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     return db.query(models.Quote).order_by(models.Quote.likes.desc()).limit(limit).all()
 
@@ -253,7 +261,7 @@ def get_recent_quotes(
     request: Request,
     limit: int = 6,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     return db.query(models.Quote).order_by(models.Quote.id.desc()).limit(limit).all()
 
@@ -263,7 +271,7 @@ def get_recent_quotes(
 def like_quote(
     request: Request,
     quote_id: int, db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
     if not quote:
@@ -279,7 +287,7 @@ def unlike_quote(
     request: Request,
     quote_id: int,
     db: Session = Depends(get_db),
-    api_key: str = Depends(require_any_key)
+    api_key_role: str = Depends(require_any_key)
 ):
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
     if quote and quote.likes > 0:

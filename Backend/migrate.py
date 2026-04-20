@@ -13,51 +13,56 @@ def run_migration():
     cursor = conn.cursor()
 
     try:
-        print("--- Starte Migration ---")
+        print("--- Starte Migration auf Lookup-Tabelle ---")
 
-        # 1. Tabelle 'authors' aktualisieren
-        cursor.execute("PRAGMA table_info(authors)")
-        author_columns = [col[1] for col in cursor.fetchall()]
-        
-        if "profile_image_path" not in author_columns:
-            print("-> Füge 'profile_image_path' zu 'authors' hinzu...")
-            cursor.execute("ALTER TABLE authors ADD COLUMN profile_image_path VARCHAR(255)")
-        
-        # 2. TABELLE 'link_types' (Falls sie noch fehlt)
-        print("-> Prüfe 'link_types' Tabelle...")
+        # 1. Erstelle die neue Status-Tabelle
+        print("-> Erstelle 'author_statuses'...")
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS link_types (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+            CREATE TABLE IF NOT EXISTS author_statuses (
+                id INTEGER PRIMARY KEY,
                 name VARCHAR(50) UNIQUE NOT NULL
             )
         """)
 
-        # 3. TABELLE 'author_links' (Falls sie noch fehlt oder neu strukturiert werden muss)
-        print("-> Prüfe 'author_links' Tabelle...")
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS author_links (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                url VARCHAR(255) NOT NULL,
-                label VARCHAR(50),
-                link_type_id INTEGER,
-                author_id INTEGER,
-                FOREIGN KEY (link_type_id) REFERENCES link_types(id),
-                FOREIGN KEY (author_id) REFERENCES authors(id)
+        # 2. Initialisiere die Status-Werte (Fixe IDs für Peace of Mind)
+        statuses = [
+            (1, 'active'),
+            (2, 'payment_due'),
+            (3, 'public_domain'),
+            (4, 'disabled')
+        ]
+        cursor.executemany("INSERT OR IGNORE INTO author_statuses (id, name) VALUES (?, ?)", statuses)
+
+        # 3. Prüfe, ob 'status_id' in 'authors' bereits existiert
+        cursor.execute("PRAGMA table_info(authors)")
+        columns = [col[1] for col in cursor.fetchall()]
+
+        if "status_id" not in columns:
+            print("-> Füge 'status_id' zu 'authors' hinzu...")
+            cursor.execute("ALTER TABLE authors ADD COLUMN status_id INTEGER REFERENCES author_statuses(id)")
+
+        # 4. Daten-Migration: Mapping von altem String-Status auf neue ID
+        print("-> Migriere bestehende Status-Daten auf IDs...")
+        mapping = {
+            'active': 1,
+            'payment_due': 2,
+            'public_domain': 3,
+            'public': 3,      # Sicherheitsnetz für den alten Wert
+            'disabled': 4
+        }
+
+        for status_name, status_id in mapping.items():
+            cursor.execute(
+                "UPDATE authors SET status_id = ? WHERE status = ?", 
+                (status_id, status_name)
             )
-        """)
 
-        # 4. DATEN-CLEANUP: Der 'string'-Bugfix
-        print("-> Bereinige ungültige 'string' Werte in profile_image_path...")
-        cursor.execute("UPDATE authors SET profile_image_path = NULL WHERE profile_image_path = 'string'")
-
-        # 5. INITIALE DATEN: LinkTypes befüllen (Website ist Pflicht für dein DTO)
-        print("-> Stelle Standard-LinkTypes sicher...")
-        cursor.execute("INSERT OR IGNORE INTO link_types (id, name) VALUES (1, 'Website')")
-        cursor.execute("INSERT OR IGNORE INTO link_types (name) VALUES ('Instagram')")
-        cursor.execute("INSERT OR IGNORE INTO link_types (name) VALUES ('LinkedIn')")
+        # 5. Fallback: Alle, die jetzt noch keine ID haben, werden 'public_domain'
+        cursor.execute("UPDATE authors SET status_id = 3 WHERE status_id IS NULL")
 
         conn.commit()
-        print("--- Migration erfolgreich abgeschlossen! ---")
+        print("--- Migration erfolgreich! ---")
+        print("Hinweis: Die Spalte 'status' existiert noch, wird aber nicht mehr benötigt.")
 
     except Exception as e:
         print(f"KRITISCHER FEHLER bei der Migration: {e}")
