@@ -13,51 +13,29 @@ def run_migration():
     cursor = conn.cursor()
 
     try:
-        print("--- Starte Migration auf Lookup-Tabelle ---")
+        print("--- Starte Migration: AuthorStatus Erweiterung ---")
 
-        # 1. Erstelle die neue Status-Tabelle
-        print("-> Erstelle 'author_statuses'...")
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS author_statuses (
-                id INTEGER PRIMARY KEY,
-                name VARCHAR(50) UNIQUE NOT NULL
-            )
-        """)
-
-        # 2. Initialisiere die Status-Werte (Fixe IDs für Peace of Mind)
-        statuses = [
-            (1, 'active'),
-            (2, 'payment_due'),
-            (3, 'public_domain'),
-            (4, 'disabled')
-        ]
-        cursor.executemany("INSERT OR IGNORE INTO author_statuses (id, name) VALUES (?, ?)", statuses)
-
-        # 3. Prüfe, ob 'status_id' in 'authors' bereits existiert
-        cursor.execute("PRAGMA table_info(authors)")
+        # 1. Prüfen, ob die Spalte 'is_active' bereits existiert
+        cursor.execute("PRAGMA table_info(author_statuses)")
         columns = [col[1] for col in cursor.fetchall()]
 
-        if "status_id" not in columns:
-            print("-> Füge 'status_id' zu 'authors' hinzu...")
-            cursor.execute("ALTER TABLE authors ADD COLUMN status_id INTEGER REFERENCES author_statuses(id)")
+        if "is_active" not in columns:
+            print("-> Füge Spalte 'is_active' zu 'author_statuses' hinzu...")
+            # In SQLite gibt es kein echtes Boolean, wir nutzen INTEGER (0 oder 1)
+            cursor.execute("ALTER TABLE author_statuses ADD COLUMN is_active INTEGER DEFAULT 1")
 
-        # 4. Daten-Migration: Mapping von altem String-Status auf neue ID
-        print("-> Migriere bestehende Status-Daten auf IDs...")
-        mapping = {
-            'active': 1,
-            'payment_due': 2,
-            'public_domain': 3,
-            'public': 3,      # Sicherheitsnetz für den alten Wert
-            'disabled': 4
-        }
+        # 2. Werte explizit setzen nach deiner Vorgabe
+        print("-> Aktualisiere Status-Logik...")
+        
+        # ID 1 & 3: Aktiv
+        cursor.execute("UPDATE author_statuses SET is_active = 1 WHERE id IN (1, 3)")
+        
+        # ID 2 & 4: Inaktiv (Disabled / Payment Due)
+        cursor.execute("UPDATE author_statuses SET is_active = 0 WHERE id IN (2, 4)")
 
-        for status_name, status_id in mapping.items():
-            cursor.execute(
-                "UPDATE authors SET status_id = ? WHERE status = ?", 
-                (status_id, status_name)
-            )
-
-        # 5. Fallback: Alle, die jetzt noch keine ID haben, werden 'public_domain'
+        # 3. Falls noch Altlasten in der authors-Tabelle sind
+        print("-> Bereinige authors Tabelle...")
+        cursor.execute("UPDATE authors SET status_id = 3 WHERE status_id IS NULL")
         cursor.execute("UPDATE authors SET status_id = 3 WHERE status_id IS NULL")
 
         conn.commit()

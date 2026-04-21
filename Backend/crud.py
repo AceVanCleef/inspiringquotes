@@ -18,12 +18,14 @@ def get_authors(db: Session, skip: int = 0, limit: int = 100, only_active: bool 
     'skip' and 'limit' allow us to paging later (e.g., page 1, 2, 3).
     """
     # 1. Statement erstellen (nur ein select!)
-    stmt = select(models.Author).options(joinedload(models.Author.quotes))
+    stmt = select(models.Author).options(
+        joinedload(models.Author.quotes),
+        joinedload(models.Author.status)
+    )
     
     # 2. Filter anwenden, falls nur aktive Autoren gewünscht sind
     if only_active:
-        # We are sending only ACTIVE and PUBLIC_DOMAIN authors
-        stmt = stmt.where(models.Author.status_id.in_([1, 3]))
+        stmt = stmt.join(models.AuthorStatus).where(models.AuthorStatus.is_active == True)
     
     # 3. Paging anwenden und ausführen
     # .unique() ist wichtig bei joinedload, um Duplikate im Result-Set zu vermeiden
@@ -164,4 +166,8 @@ def get_author_links(db: Session, author_id: int):
 
 def get_link_types(db: Session):
     result = db.execute(select(models.LinkType))
+    return result.scalars().all()
+
+def get_author_statuses(db: Session):
+    result = db.execute(select(models.AuthorStatus))
     return result.scalars().all()

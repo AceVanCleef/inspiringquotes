@@ -5,7 +5,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base # Das ist die Base mit (DeclarativeBase), die wir gerade besprochen haben
 
 ### Database models ###
+class AuthorStatus(Base):
+    __tablename__ = "author_statuses"
 
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    is_active: Mapped[bool] = mapped_column(default=True)
+    
 class Author(Base):
     __tablename__ = "authors"
 
@@ -32,6 +38,7 @@ class Author(Base):
         return len(self.quotes)
     
     status_id: Mapped[int] = mapped_column(ForeignKey("author_statuses.id"), default=3)
+    status: Mapped["AuthorStatus"] = relationship(foreign_keys=[status_id])
     subscription_expiry: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     internal_note: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
@@ -66,8 +73,3 @@ class Quote(Base):
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
     author: Mapped["Author"] = relationship(back_populates="quotes")
     
-class AuthorStatus(Base):
-    __tablename__ = "author_statuses"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)

@@ -294,3 +294,14 @@ def unlike_quote(
         quote.likes -= 1
         db.commit()
     return {"likes": quote.likes}
+
+
+# author status
+@app.get("/authorstatuses", response_model=List[schemas.AuthorStatusDTO], tags=["author status"])
+@limiter.limit("60/min")
+def get_author_statuses(
+    request: Request,
+    db: Session = Depends(get_db),
+    api_key_role: str = Depends(require_admin_key)
+):
+    return crud.get_author_statuses(db)

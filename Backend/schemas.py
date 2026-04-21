@@ -3,7 +3,7 @@ from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
 
 ### API DTO Definitions ###
-
+    
 # --- Link Type DTO ---
 class LinkTypeBase(BaseModel):
     name: str
@@ -41,12 +41,24 @@ class AuthorLink(AuthorLinkBase):
     class Config:
         from_attributes = True
 
+# author status DTO
+class AuthorStatusDTO(BaseModel):
+    id: int
+    name: str
+    is_active: bool
+    
+    class Config:
+        from_attributes = True
+    
 # --- AUTHOR DTOs ---
 class AuthorBase(BaseModel):
     first_name: str
     last_name: str
     bio: Optional[str] = None
     profile_image_path: Optional[HttpUrl] = None
+    
+    class Config:
+        from_attributes = True
 
 class AuthorCreate(AuthorBase):
     links: Optional[List[AuthorLinkUpdate]] = []
@@ -69,7 +81,6 @@ class AuthorUpdate(BaseModel):
     subscription_expiry: Optional[date] = None
     internal_note: Optional[str] = None
 
-
 class Author(AuthorBase):
     id: int
     links: Optional[List[AuthorLink]] = []
@@ -79,7 +90,7 @@ class Author(AuthorBase):
         from_attributes = True
 
 class AuthorAdminPanelDTO(Author):
-    status_id: int
+    status: AuthorStatusDTO
     subscription_expiry: Optional[date] = None
     internal_note: Optional[str] = None
     
