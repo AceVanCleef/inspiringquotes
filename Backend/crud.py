@@ -34,17 +34,32 @@ def get_authors(db: Session, skip: int = 0, limit: int = 100, only_active: bool 
     return result.scalars().all()
 
 def create_author(db: Session, author: schemas.AuthorCreate):
-    links_data = author.links if hasattr(author, 'links') else []
-    db_author = models.Author(**author.model_dump(exclude={'links'}, mode="json"))
-    db.add(db_author)
-    db.flush()
+    # 1. Daten extrahieren OHNE mode="json"
+    # Damit bleiben 'date' Felder echte Python-Objekte
+    author_data = author.model_dump(exclude={'links'})
     
-    for link_data in links_data:
-        db_link = models.AuthorLink(
-            **link_data.model_dump(mode="json", exclude={"id", "author_id"}),
-            author_id=db_author.id
-        )
-        db.add(db_link)
+    # Pydantic-Typen (wie HttpUrl) für SQLAlchemy zu Strings konvertieren
+    for key, value in author_data.items():
+        if type(value).__name__ == "HttpUrl":
+            author_data[key] = str(value)
+
+    db_author = models.Author(**author_data)
+    db.add(db_author)
+    db.flush()  # Erzeugt die ID für die Links
+    
+    # 2. Links verarbeiten
+    if hasattr(author, 'links') and author.links:
+        for link_data in author.links:
+            # Auch hier: mode="json" weglassen
+            link_dict = link_data.model_dump(exclude={"id", "author_id"})
+            
+            # URLs in Links ebenfalls zu Strings konvertieren
+            for key, value in link_dict.items():
+                if type(value).__name__ == "HttpUrl":
+                    link_dict[key] = str(value)
+            
+            db_link = models.AuthorLink(**link_dict, author_id=db_author.id)
+            db.add(db_link)
         
     db.commit()
     db.refresh(db_author)
@@ -55,9 +70,11 @@ def update_author(db: Session, author_id: int, author_update: schemas.AuthorUpda
     if db_author:
         # Hier sorgt 'exclude_unset=True' dafür, dass nur die Felder im JSON
         # die Datenbank ändern. Fehlende Felder im JSON bleiben in der DB unberührt.
-        update_data = author_update.model_dump(exclude_unset=True, exclude={"links"}, mode="json") 
+        update_data = author_update.model_dump(exclude_unset=True, exclude={"links"}) 
         
         for key, value in update_data.items():
+            if hasattr(value, "__str__") and type(value).__name__ == "HttpUrl":
+                value = str(value) # convert httpurl object to string
             setattr(db_author, key, value)
         
         # reconsile links

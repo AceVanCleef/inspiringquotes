@@ -75,7 +75,6 @@ def read_authors(
 ):
     """Returns a list of all authors including their links."""
     is_admin = (api_key_role == UserRoles.ADMIN)
-    print("api key role: ", api_key_role, " is admin? ", is_admin)
     authors = crud.get_authors(db, skip=skip, limit=limit, only_active=not is_admin)
 
     if is_admin:
@@ -93,8 +92,12 @@ def read_author(
 ):
     """Search for a specific author using their ID."""   
     db_author = crud.get_author(db, author_id=author_id)
+
     if db_author is None:
         raise HTTPException(status_code=404, detail="Author not found")
+    
+    if  api_key_role != UserRoles.ADMIN and db_author.status and not db_author.status.is_active:
+        raise HTTPException(status_code=404, detail="Author has been disabled")
     return db_author
 
 # Links end points
