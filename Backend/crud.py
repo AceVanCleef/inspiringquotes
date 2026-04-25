@@ -1,8 +1,8 @@
-from datetime import date
+from datetime import date, timedelta
 import random
 
 from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, update
 import models, schemas
 
 def get_author(db: Session, author_id: int):
@@ -229,3 +229,78 @@ def get_link_types(db: Session):
 def get_author_statuses(db: Session):
     result = db.execute(select(models.AuthorStatus))
     return result.scalars().all()
+
+def get_authors_expiring_in_30_days(db: Session):
+    # Calculate target date
+    target_date = date.today() + timedelta(days=30)
+    
+    # Datenbank-Abfrage
+    stmt = (
+        select(models.Author)
+        .join(models.Author.status)
+        .where(
+            models.AuthorStatus.is_active == True,       # Nur aktive Autoren
+            models.Author.subscription_expiry == target_date # Exakt in 30 Tagen
+        )
+    )
+    
+    return db.execute(stmt).scalars().all()
+
+
+def get_expired_authors(db: Session):
+    # Calculate target date
+    target_date = date.today() - timedelta(days=1) # past payment date
+    
+    # Datenbank-Abfrage
+    stmt = (
+        select(models.Author)
+        .join(models.Author.status)
+        .where(
+            models.AuthorStatus.is_active == True,       # Nur aktive Autoren (payment_due)
+            models.Author.subscription_expiry == target_date
+        )
+    )
+    
+    return db.execute(stmt).scalars().all()
+
+
+def set_authors_to_payment_due(db: Session, author_ids: list[int]):
+    """
+    Setzt den Status einer Liste von Autoren auf 'payment_due' (ID = 2).
+    """
+    if not author_ids:
+        return 0
+
+    # Das Update-Statement: Effizient auf Datenbank-Ebene
+    stmt = (
+        update(models.Author)
+        .where(models.Author.id.in_(author_ids))
+        .values(status_id=2) # Annahme: status_id ist der Foreign Key in Author
+    )
+    
+    result = db.execute(stmt)
+    db.commit()
+    
+    # Gibt die Anzahl der betroffenen Zeilen zurück
+    return result.rowcount
+
+
+def set_authors_to_payment_overdue(db: Session, author_ids: list[int]):
+    """
+    Setzt den Status einer Liste von Autoren auf 'payment_overdue' (ID = 3).
+    """
+    if not author_ids:
+        return 0
+
+    # Das Update-Statement: Effizient auf Datenbank-Ebene
+    stmt = (
+        update(models.Author)
+        .where(models.Author.id.in_(author_ids))
+        .values(status_id=3) # Annahme: status_id ist der Foreign Key in Author
+    )
+    
+    result = db.execute(stmt)
+    db.commit()
+    
+    # Gibt die Anzahl der betroffenen Zeilen zurück
+    return result.rowcount

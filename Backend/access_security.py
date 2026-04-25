@@ -23,6 +23,5 @@ async def require_any_key(key: str = Depends(get_current_key)):
 # Türsteher 2: Erlaubt NUR Admin (für POST, PUT, DELETE)
 async def require_admin_key(key: str = Depends(get_current_key)):
     if key == os.getenv("ADMIN_API_KEY"):
-        print("key ", key)
         return UserRoles.ADMIN
     raise HTTPException(status_code=403, detail="Access denied: Admin rights required")
