@@ -15,7 +15,7 @@ def check_upcoming_payments():
         for author in authors:
             # Hier die Logik: E-Mail senden, Notification erstellen, etc.
             author_ids.append(author.id)
-            print(f"Sende Zahlungserinnerung an: {author.name}")
+            print(f"Sende Zahlungserinnerung an: {author.first_name} {author.last_name}")
         
         if len(author_ids) > 0:
             set_authors_to_payment_due(author_ids)
@@ -30,7 +30,7 @@ def check_overdue_payments():
         for author in authors:
             # Hier die Logik: E-Mail senden, Notification erstellen, etc.
             author_ids.append(author.id)
-            print(f"Sende Zahlungserinnerung an: {author.name}")
+            print(f"Sende Zahlungserinnerung an: {author.first_name} {author.last_name}")
         
         if len(author_ids) > 0:
             set_authors_to_payment_overdue(author_ids)

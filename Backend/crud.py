@@ -240,6 +240,7 @@ def get_authors_expiring_in_30_days(db: Session):
         .join(models.Author.status)
         .where(
             models.AuthorStatus.is_active == True,       # Nur aktive Autoren
+            models.AuthorStatus.id != 4, # exclude public_domain authors
             models.Author.subscription_expiry == target_date # Exakt in 30 Tagen
         )
     )
@@ -248,16 +249,13 @@ def get_authors_expiring_in_30_days(db: Session):
 
 
 def get_expired_authors(db: Session):
-    # Calculate target date
-    target_date = date.today() - timedelta(days=1) # past payment date
-    
-    # Datenbank-Abfrage
     stmt = (
         select(models.Author)
         .join(models.Author.status)
         .where(
             models.AuthorStatus.is_active == True,       # Nur aktive Autoren (payment_due)
-            models.Author.subscription_expiry == target_date
+            models.AuthorStatus.id != 4, # exclude public_domain authors
+            models.Author.subscription_expiry <= date.today() # Everything overdue
         )
     )
     
