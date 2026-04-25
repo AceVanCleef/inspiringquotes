@@ -6,7 +6,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
-from typing import List
+from typing import Dict, List
 from enums.user_roles import UserRoles
 import models, schemas, crud
 from access_security import require_admin_key, require_any_key
@@ -339,3 +339,12 @@ def get_author_statuses(
     api_key_role: str = Depends(require_admin_key)
 ):
     return crud.get_author_statuses(db)
+
+@app.get("/dashboard/stats", response_model=Dict[str, int], tags=["Dashboard"])
+@limiter.limit("60/min")
+def get_dashboard_stats(
+    request: Request,
+    db: Session = Depends(get_db),
+    api_key_role: str = Depends(require_admin_key)
+):
+    return crud.get_author_status_counts(db)

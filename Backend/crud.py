@@ -273,7 +273,7 @@ def set_authors_to_payment_due(db: Session, author_ids: list[int]):
     stmt = (
         update(models.Author)
         .where(models.Author.id.in_(author_ids))
-        .values(status_id=2) # Annahme: status_id ist der Foreign Key in Author
+        .values(status_id=2)
     )
     
     result = db.execute(stmt)
@@ -294,7 +294,7 @@ def set_authors_to_payment_overdue(db: Session, author_ids: list[int]):
     stmt = (
         update(models.Author)
         .where(models.Author.id.in_(author_ids))
-        .values(status_id=3) # Annahme: status_id ist der Foreign Key in Author
+        .values(status_id=3)
     )
     
     result = db.execute(stmt)
@@ -302,3 +302,21 @@ def set_authors_to_payment_overdue(db: Session, author_ids: list[int]):
     
     # Gibt die Anzahl der betroffenen Zeilen zurück
     return result.rowcount
+
+def get_author_status_counts(db: Session):
+    """
+    Gibt die Anzahl der Autoren gruppiert nach Status-Name zurück.
+    Beispiel-Output: {"active": 42, "payment_due": 3, "payment_overdue": 1}
+    """
+    results = (
+        db.query(
+            models.AuthorStatus.name, 
+            func.count(models.Author.id)
+        )
+        .join(models.Author, models.Author.status_id == models.AuthorStatus.id)
+        .group_by(models.AuthorStatus.name)
+        .all()
+    )
+    
+    # Rückgabe als klares Dictionary: { "status_name": anzahl }
+    return {name: count for name, count in results}
