@@ -15,10 +15,8 @@ async def get_current_key(header_value: str = Security(api_key_header)):
 # Türsteher 1: Erlaubt Client ODER Admin (für GET)
 async def require_any_key(key: str = Depends(get_current_key)):
     if key == os.getenv("CLIENT_API_KEY"):
-        print("key ", key)
         return UserRoles.USER
     if key == os.getenv("ADMIN_API_KEY"):
-        print("key ", key)
         return UserRoles.ADMIN
     raise HTTPException(status_code=403, detail="Access denied: Invalid Key")
 

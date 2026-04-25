@@ -1,6 +1,9 @@
+from datetime import date
+import random
+
 from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import or_, select
-import models, schemas # schemas sind die Pydantic-Baupläne (folgen gleich)
+from sqlalchemy import func, or_, select
+import models, schemas
 
 def get_author(db: Session, author_id: int):
     return db.execute(
@@ -120,12 +123,50 @@ def delete_author(db: Session, author_id: int):
         return True
     return False
 
-def get_quotes(db: Session, skip: int = 0, limit: int = 100):
+def get_quotes(db: Session, skip: int = 0, limit: int = 100, only_active = False):
     # Der moderne 2.0-Weg mit select()
-    result = db.execute(select(models.Quote)
-                        .options(joinedload(models.Quote.author)) 
-                        .offset(skip).limit(limit))
-    return result.unique().scalars().all()
+    stmt = select(models.Quote).options(
+        joinedload(models.Quote.author)
+    )
+    
+    if only_active:
+        stmt = stmt.join(models.Quote.author) \
+                   .join(models.Author.status) \
+                   .where(models.AuthorStatus.is_active == True)      
+                     
+    result = db.execute(stmt.offset(skip).limit(limit)).unique()
+    return result.scalars().all()
+
+def get_daily_quote(db: Session):
+    # 1. Nur die Anzahl (Count) der aktiven Quotes abfragen
+    count_stmt = (
+        select(func.count(models.Quote.id))
+        .join(models.Quote.author)
+        .join(models.Author.status)
+        .where(models.AuthorStatus.is_active == True)
+    )
+    total_active = db.execute(count_stmt).scalar()
+
+    if total_active == 0:
+        return None
+
+    # 2. Seed-Logik für den Index
+    seed = date.today().timetuple().tm_yday
+    random.seed(seed)
+    random_index = random.randint(0, total_active - 1)
+
+    # 3. Nur das EINE Zitat an der Stelle random_index laden
+    quote_stmt = (
+        select(models.Quote)
+        .join(models.Quote.author)
+        .join(models.Author.status)
+        .where(models.AuthorStatus.is_active == True)
+        .options(joinedload(models.Quote.author))
+        .offset(random_index)
+        .limit(1)
+    )
+    
+    return db.execute(quote_stmt).scalars().first()
 
 def get_quotes_by_author(db: Session, author_id: int):
     return db.query(models.Quote).filter(models.Quote.author_id == author_id).all()

@@ -16,7 +16,6 @@ async function handler(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  console.log("endpoint: ", endpoint);
   if (endpoint) {
     const headers: any = {
       "Content-Type": "application/json",

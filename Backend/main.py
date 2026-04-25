@@ -5,7 +5,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, select
 from typing import List
 from enums.user_roles import UserRoles
 import models, schemas, crud
@@ -160,7 +160,7 @@ def read_quotes(
     api_key_role: str = Depends(require_any_key)
 ):
     """Returns all quotes (with nested author information)."""
-    return crud.get_quotes(db, skip=skip, limit=limit)
+    return crud.get_quotes(db, skip=skip, limit=limit, only_active=api_key_role != UserRoles.ADMIN)
 
 @app.get("/quote/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
 @limiter.limit("60/minute")
@@ -173,6 +173,9 @@ def read_quote(
     quote = crud.get_quote(db, quote_id=quote_id)
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
+    
+    if  api_key_role != UserRoles.ADMIN and quote.author.status and not quote.author.status.is_active:
+        raise HTTPException(status_code=404, detail="Author of this quote has been disabled. Thus, this quote is not shown.")
     return quote
 
 @app.put("/quotes/{quote_id}", response_model=schemas.Quote, tags=["Quotes"])
@@ -211,9 +214,18 @@ def read_author_quotes(
     db: Session = Depends(get_db),
     api_key_role: str = Depends(require_any_key)
 ):
+    db_author = crud.get_author(db, author_id=author_id)
+    
+    if db_author is None:
+        raise HTTPException(status_code=404, detail="Author not found")
+    
+    if api_key_role != UserRoles.ADMIN and db_author.status and not db_author.status.is_active:
+        raise HTTPException(status_code=404, detail="Author of these quotes has been disabled")
+    
     quotes = crud.get_quotes_by_author(db, author_id=author_id)
     if not quotes:
         return []
+    
     return quotes
 
 @app.delete("/authors/{author_id}/quotes", tags=["Quotes"])
@@ -238,13 +250,12 @@ def get_daily_quote(
     db: Session = Depends(get_db),
     api_key_role: str = Depends(require_any_key)
 ):
-    quotes = db.query(models.Quote).all()
-    if not quotes:
-        raise HTTPException(status_code=404, detail="No quotes found")
-    # Nutzt den Tag des Jahres als Zufalls-Seed
-    seed = date.today().timetuple().tm_yday
-    random.seed(seed)
-    return random.choice(quotes)
+    active_quote = crud.get_daily_quote(db)
+
+    if not active_quote:
+        raise HTTPException(status_code=404, detail="No quote found")
+
+    return active_quote
 
 # Popular Quotes
 @app.get("/quotes/popular", response_model=List[schemas.Quote], tags=["Quotes", "popular"])
@@ -255,7 +266,17 @@ def get_popular_quotes(
     db: Session = Depends(get_db),
     api_key_role: str = Depends(require_any_key)
 ):
-    return db.query(models.Quote).order_by(models.Quote.likes.desc()).limit(limit).all()
+    stmt = (
+        select(models.Quote)
+        .join(models.Quote.author)
+        .join(models.Author.status)
+        .where(models.AuthorStatus.is_active == True)
+        .order_by(models.Quote.likes.desc())
+        .limit(limit)
+    )
+    
+    result = db.execute(stmt)
+    return result.scalars().all()
 
 # Recent Quotes (The newest date = highest ID)
 @app.get("/quotes/recent", response_model=List[schemas.Quote], tags=["Quotes", "recent"])
@@ -266,8 +287,18 @@ def get_recent_quotes(
     db: Session = Depends(get_db),
     api_key_role: str = Depends(require_any_key)
 ):
-    return db.query(models.Quote).order_by(models.Quote.id.desc()).limit(limit).all()
-
+    stmt = (
+        select(models.Quote)
+        .join(models.Quote.author)
+        .join(models.Author.status)
+        .where(models.AuthorStatus.is_active == True)
+        .order_by(models.Quote.id.desc())
+        .limit(limit)
+    )
+    
+    result = db.execute(stmt)
+    return result.scalars().all()
+    
 # Like/ unlike ---------------
 @app.post("/quotes/{quote_id}/like", tags=["Quotes", "likes"])
 @limiter.limit("15/minute")
