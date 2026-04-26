@@ -62,7 +62,7 @@ class AuthorBase(BaseModel):
 
 class AuthorCreate(AuthorBase):
     links: Optional[List[AuthorLinkUpdate]] = []
-    status_id: Optional[int] = 3 # public_domain
+    status_id: Optional[int] = 4 # public_domain
     subscription_expiry: Optional[date] = None
     internal_note: Optional[str] = None
 
