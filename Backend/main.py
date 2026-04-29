@@ -10,7 +10,7 @@ from typing import Dict, List
 from database_seeding import lifespan_handler
 from enums.user_roles import UserRoles
 import models, schemas, crud
-from access_security import require_admin_key, require_any_key
+from access_security import check_api_keys_being_read, require_admin_key, require_any_key
 from database_config import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 import random
@@ -21,6 +21,8 @@ from datetime import date
 models.Base.metadata.create_all(bind=engine)
 
 load_dotenv()
+check_api_keys_being_read()
+
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Inspiring Quotes API",
