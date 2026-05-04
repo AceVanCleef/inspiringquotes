@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:18
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=quote_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Wir bauen die URL aus den gleichen Variablen zusammen!
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/quote_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

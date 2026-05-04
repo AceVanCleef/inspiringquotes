@@ -24,19 +24,19 @@ export async function getQuote(quoteId: number): Promise<Quote> {
 }
 
 export async function getDailyQuote(): Promise<Quote> {
-  const response = await fetch(`${BASE_URL}/quotes/daily/`)
+  const response = await fetch(`${BASE_URL}/quotes/daily/`);
   if (!response.ok) {
-    throw new Error('Error while fetching quote of the day')
+    throw new Error('Error while fetching quote of the day');
   }
-  return response.json()
+  return response.json();
 }
 
 export async function getPopularQuotes(): Promise<Quote[]> {
-  const response = await fetch(`${BASE_URL}/quotes/popular/`)
+  const response = await fetch(`${BASE_URL}/quotes/popular/`);
   if (!response.ok) {
-    throw new Error('Error while fetching quote of the day')
+    throw new Error('Error while fetching quote of the day');
   }
-  return response.json()
+  return response.json();
 }
 
 export async function getRecentQuotes(): Promise<Quote[]> {

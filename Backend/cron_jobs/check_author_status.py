@@ -2,10 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from Backend.crud import get_authors_expiring_in_30_days, get_expired_authors, set_authors_to_payment_due, set_authors_to_payment_overdue
+from crud import get_authors_expiring_in_30_days, get_expired_authors, set_authors_to_payment_due, set_authors_to_payment_overdue
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from Backend.database import SessionLocal
+from database_config import SessionLocal
 
 def check_upcoming_payments():
     db = SessionLocal() # Neue Session öffnen

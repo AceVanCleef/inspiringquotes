@@ -25,3 +25,11 @@ async def require_admin_key(key: str = Depends(get_current_key)):
     if key == os.getenv("ADMIN_API_KEY"):
         return UserRoles.ADMIN
     raise HTTPException(status_code=403, detail="Access denied: Admin rights required")
+
+async def check_api_keys_being_read():
+    if not os.getenv("CLIENT_API_KEY"):
+        raise RuntimeError("CRITICAL: Coudln't read user API key from environment variables.")
+    
+    if not os.getenv("ADMIN_API_KEY"):
+        raise RuntimeError("CRITICAL: Coudln't read admin API key from environment variables.")
+    

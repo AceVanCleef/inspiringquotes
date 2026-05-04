@@ -2,7 +2,7 @@ from datetime import date
 from typing import List, Optional
 from sqlalchemy import CheckConstraint, Column, Date, ForeignKey, Integer, String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database import Base # Das ist die Base mit (DeclarativeBase), die wir gerade besprochen haben
+from database_config import Base # Das ist die Base mit (DeclarativeBase), die wir gerade besprochen haben
 
 ### Database models ###
 class AuthorStatus(Base):

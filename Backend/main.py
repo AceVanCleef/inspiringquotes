@@ -7,10 +7,11 @@ from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 from typing import Dict, List
+from database_seeding import lifespan_handler
 from enums.user_roles import UserRoles
 import models, schemas, crud
-from access_security import require_admin_key, require_any_key
-from database import SessionLocal, engine
+from access_security import check_api_keys_being_read, require_admin_key, require_any_key
+from database_config import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 import random
 from datetime import date
@@ -20,10 +21,13 @@ from datetime import date
 models.Base.metadata.create_all(bind=engine)
 
 load_dotenv()
+check_api_keys_being_read()
+
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Inspiring Quotes API",
     description="A curated collection of inspiring quotes - collected by a Swiss Expert in personal developtment.",
+    lifespan=lifespan_handler
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -51,6 +55,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 
 @app.post("/authors/", response_model=schemas.Author, tags=["Authors"])
