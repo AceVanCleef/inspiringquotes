@@ -1,6 +1,8 @@
 import AuthorTable from "@/components/ui/molecule/AuthorsTable";
 import { getAuthors } from "@/lib/api";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Authors() {
     const authors = await getAuthors();
 

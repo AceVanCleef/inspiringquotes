@@ -1,6 +1,8 @@
 import QuotesListView from '@/components/ui/organisms/QuotesListView';
 import { getAuthors, getQuotes } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Quotes() {
     const [initialQuotes, authors] = await Promise.all([
         getQuotes(),

@@ -4,6 +4,8 @@ import { getQuote } from "@/lib/api";
 import { MessageSquareOff } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function QuotePreview({ 
   params 
 }: { 
