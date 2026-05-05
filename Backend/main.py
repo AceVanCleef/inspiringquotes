@@ -21,7 +21,6 @@ from datetime import date
 models.Base.metadata.create_all(bind=engine)
 
 load_dotenv()
-await check_api_keys_being_read()
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
