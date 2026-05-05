@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlalchemy import text
+from access_security import check_api_keys_being_read
 from database_config import SessionLocal, engine
 import models
 
@@ -42,7 +43,8 @@ async def lifespan_handler(app: FastAPI):
             # Ensures automatic ID incrementation
             db.execute(text("SELECT setval('link_types_id_seq', (SELECT MAX(id) FROM link_types))"))
             db.commit()
-            
+       
+    await check_api_keys_being_read()     
     yield  # Die App läuft jetzt
     
     # Optional: Cleanup beim Beenden
