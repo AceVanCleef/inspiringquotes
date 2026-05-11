@@ -3,6 +3,10 @@ Multi-client server web application with built-in stateless access security, eng
 
 # Architecture & Technologies
 
+[Dashboard] (Local)  \
+                      --> [FastAPI Service] (Cloud/Docker) --> [PostgreSQL]
+[Public Web] (Vercel) /
+
 ### Clients (Decoupled & Modern)
 *Public Website & Admin Dashboard*
 - **React / Next.js** (App Router)
