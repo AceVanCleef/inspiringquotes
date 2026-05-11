@@ -1,13 +1,13 @@
-Client-Server-Client WebApp with access security built-in and rapid development velocity in mind - to collect inspiring wisdom from bright minds of today and ages ago.
+Multi-Client Server WebApp with access security built-in and rapid development velocity in mind - to collect inspiring wisdom from bright minds of today and ages ago.
 
 # Technologies used
 
-Client:
+Clients (Public Website, Dashboard):
 - React/Next.js
 - Typescript
 - Shadcn UI library
 
-Server-Backend:
+Server-Backend (Stateless, headless Microservice):
 - FastAPI (REST API)
 - SQLAlchemy (ORM layer)
 - Pydantic type validation
