@@ -1,21 +1,25 @@
-Multi-Client Server WebApp with access security built-in and rapid development velocity in mind - to collect inspiring wisdom from bright minds of today and ages ago.
+# Project Vision
+Multi-client server web application with built-in stateless access security, engineered for rapid development velocity. Designed to curate and share inspiring wisdom from the world's brightest minds.
 
-# Technologies used
+# Architecture & Technologies
 
-Clients (Public Website, Dashboard):
-- React/Next.js
-- Typescript
-- Shadcn UI library
+### Clients (Decoupled & Modern)
+*Public Website & Admin Dashboard*
+- **React / Next.js** (App Router)
+- **TypeScript** for robust type safety
+- **Shadcn UI** for high-speed, consistent UI development
+- **Deployment:** Vercel (automated via GitHub Actions)
 
-Server-Backend (Stateless, headless Microservice):
-- FastAPI (REST API)
-- SQLAlchemy (ORM layer)
-- Pydantic type validation
-- SlowApi rate limitting
-- Python
-- Runs in Docker container
+### Server-Backend (Stateless Headless Microservice)
+*Central Logic & API*
+- **FastAPI** (High-performance Python REST API)
+- **Pydantic** for automated data validation
+- **SQLAlchemy** (Advanced ORM layer)
+- **SlowApi** for integrated rate limiting
+- **Deployment:** Coolify on dedicated VPS (automated via GitHub Actions)
+- **Containerization:** Fully Dockerized for environment parity
 
-Database Layer:
-- PostgreSQL in production
-- Runs in Docker container
-- SQLite for local, non-dockerized development (that's how I started out, before upgrading to PostgreSQL)
+### Database Layer
+- **PostgreSQL** (Production-grade reliability)
+- **SQLite** (Initial local development & rapid prototyping)
+- **Containerization:** Isolated Docker service
