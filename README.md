@@ -3,9 +3,7 @@ Multi-client server web application with built-in stateless access security, eng
 
 # Architecture & Technologies
 
-[Dashboard] (Local)  \
-                      --> [FastAPI Service] (Cloud/Docker) --> [PostgreSQL]
-[Public Web] (Vercel) /
+[Public Web] (Vercel) / [Dashboard] (Local) --> [FastAPI Service] (Cloud/Docker) --> [PostgreSQL]
 
 ### Clients (Decoupled & Modern)
 *Public Website & Admin Dashboard*
