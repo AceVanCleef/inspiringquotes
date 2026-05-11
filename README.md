@@ -3,7 +3,7 @@ Client-Server-Client WebApp with access security built-in and rapid development 
 # Technologies used
 
 Client:
-- Rext/Next.js
+- Rect/Next.js
 - Typescript
 - Shadcn UI library
 
