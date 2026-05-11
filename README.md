@@ -3,8 +3,6 @@ Multi-client server web application with built-in stateless access security, eng
 
 # Architecture & Technologies
 
-[Public Web] (Vercel) / [Dashboard] (Local) --> [FastAPI Service] (Cloud/Docker) --> [PostgreSQL]
-
 ### Clients (Decoupled & Modern)
 *Public Website & Admin Dashboard*
 - **React / Next.js** (App Router)
@@ -25,3 +23,5 @@ Multi-client server web application with built-in stateless access security, eng
 - **PostgreSQL** (Production-grade reliability)
 - **SQLite** (Initial local development & rapid prototyping)
 - **Containerization:** Isolated Docker service
+
+[Public Web] (Vercel) / [Dashboard] (Local) --> [FastAPI Service] (Cloud/Docker) --> [PostgreSQL]
