@@ -257,8 +257,8 @@ def get_daily_quote(
     active_quote = crud.get_daily_quote(db)
 
     if not active_quote:
-        raise HTTPException(status_code=404, detail="No quote found")
-
+        # raise HTTPException(status_code=404, detail="No quote found")
+        return {"message": "No quote for today yet", "content": "..."}
     return active_quote
 
 # Popular Quotes

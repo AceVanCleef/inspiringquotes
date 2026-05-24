@@ -1,3 +1,12 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Impressum',
+    openGraph: {
+        url: '/impressum',
+    }
+}
+
 export default function Impressum() {
     const email = "sw@stefanwohlgensinger.ch";
     return (

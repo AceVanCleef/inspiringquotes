@@ -1,3 +1,13 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Privacy',
+    openGraph: {
+        url: '/privacy',
+    }
+}
+
+
 export default function Privacy() {
     const email = "sw@stefanwohlgensinger.ch";
 

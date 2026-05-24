@@ -6,6 +6,45 @@ import { getAuthor, getAuthorQuotes } from "@/lib/api";
 import { Author } from "@/types/author";
 import { Ghost } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from 'next';
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  
+  const author = await getAuthor(id);
+
+  // Fallback, falls der Autor nicht existiert (wird vom Layout abgefangen)
+  if (!author) {
+    return {
+      title: 'Author Not Found',
+      description: 'The requested author could not be found.',
+    };
+  }
+
+  const fullName = `${author.first_name} ${author.last_name}`;
+  const shortBio = author.bio 
+    ? `${author.bio.substring(0, 150)}...` 
+    : `Read selected wisdom and quotes from ${fullName}.`;
+
+  return {
+    title: fullName,
+    description: shortBio,
+    
+    openGraph: {
+      // Nutzt das im Layout definierte metadataBase für absolute Pfade
+      url: `/authors/${id}`,
+      type: 'profile', // 'profile' ist das perfekte OG-Asset für Personen
+      title: `${fullName} — Quotes & Wisdom`,
+      description: shortBio,
+      firstName: author.first_name,
+      lastName: author.last_name,
+    },
+  };
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -21,9 +60,31 @@ export default async function AuthorProfilePage({
       getAuthorQuotes(id)
   ]);
 
+  const authorName = author 
+    ? `${author.first_name} ${author.last_name}`
+    : 'Unknown Author';
+    
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    'mainEntity': {
+      '@type': 'Person',
+      'name': authorName,
+      'description': author?.bio || `Curated quotes and wisdom from ${authorName}.`,
+      'image': author?.profile_image_path,
+      'sameAs': author?.links?.map(link => link.url) || [] // links Social-Media-Links
+    }
+  };
+
   if (!author) {
     return (
       <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+        {/* SEO optimization */}
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        
         {/* Das Icon mit einer leichten Animation und feinerem Strich */}
         <div className="rounded-full bg-slate-100 p-6 dark:bg-slate-800">
           <Ghost size={64} className="text-slate-400 animate-pulse" strokeWidth={1.5} />

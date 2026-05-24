@@ -18,8 +18,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Inspiring Quotes",
+  metadataBase: new URL('https://inspiringquotes.ch'),
+  title: {
+    default: "inspiringquotes.ch | Wisdom curated to change lifes.",
+    template: '%s | inspiringquotes.ch' // %s wird durch den Titel der Unterseite ersetzt!
+  },
   description: "Quotes from inspiring personalities to overcome any challenges of your everyday life.",
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: 'inspiringquotes.ch',
+  },
+  alternates: {
+    canonical: '/', // SEO optimization
+  },
 };
 
 export default function RootLayout({

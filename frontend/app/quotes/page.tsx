@@ -1,5 +1,13 @@
 import QuotesListView from '@/components/ui/organisms/QuotesListView';
 import { getAuthors, getQuotes } from '@/lib/api';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Quotes',
+    openGraph: {
+        url: '/quotes',
+    }
+}
 
 export const dynamic = 'force-dynamic';
 
